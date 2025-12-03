@@ -232,6 +232,11 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		if(FlxG.keys.justPressed.NINE){
+					PlayState.SONG = Song.loadFromJson("bara no yume", "bara no yume");
+					PlayState.storyDifficulty = 1;
+					LoadingState.loadAndSwitchState(new PlayState());
+		}
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
 

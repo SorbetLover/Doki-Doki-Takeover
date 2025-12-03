@@ -44,6 +44,7 @@ import flixel.text.FlxText;
 import flixel.addons.text.FlxTypeText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
+import flixel.tweens.misc.ColorTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
@@ -460,6 +461,11 @@ class PlayState extends MusicBeatState
 	public static var sectionStartPoint:Int = 0;
 	public static var sectionStartTime:Float = 0;
 
+	/// sorbetlover modding things
+
+
+
+	/// end of sorbetlover modding things
 	override public function create()
 	{
 		Paths.clearStoredMemory();
@@ -776,25 +782,26 @@ class PlayState extends MusicBeatState
 		{
 			case 'school':
 				{
-					var bgSky = new FlxSprite().loadGraphic(Paths.image('weeb/weebSky', 'week6'));
+					schoolCreate();
+					bgSky = new FlxSprite().loadGraphic(Paths.image('weeb/weebSky', 'week6'));
 					bgSky.scrollFactor.set(0.1, 0.1);
 					add(bgSky);
 
 					var repositionShit = -200;
 
-					var bgSchool:FlxSprite = new FlxSprite(repositionShit, 0).loadGraphic(Paths.image('weeb/weebSchool', 'week6'));
+					bgSchool = new FlxSprite(repositionShit, 0).loadGraphic(Paths.image('weeb/weebSchool', 'week6'));
 					bgSchool.scrollFactor.set(0.6, 0.90);
 					add(bgSchool);
 
-					var bgStreet:FlxSprite = new FlxSprite(repositionShit).loadGraphic(Paths.image('weeb/weebStreet', 'week6'));
+					bgStreet = new FlxSprite(repositionShit).loadGraphic(Paths.image('weeb/weebStreet', 'week6'));
 					bgStreet.scrollFactor.set(0.95, 0.95);
 					add(bgStreet);
 
-					var fgTrees:FlxSprite = new FlxSprite(repositionShit + 170, 130).loadGraphic(Paths.image('weeb/weebTreesBack', 'week6'));
+					fgTrees = new FlxSprite(repositionShit + 170, 130).loadGraphic(Paths.image('weeb/weebTreesBack', 'week6'));
 					fgTrees.scrollFactor.set(0.9, 0.9);
 					add(fgTrees);
 
-					var bgTrees:FlxSprite = new FlxSprite(repositionShit - 380, -800);
+					 bgTrees = new FlxSprite(repositionShit - 380, -800);
 					var treetex = Paths.getPackerAtlas('weeb/weebTrees', 'week6');
 					bgTrees.frames = treetex;
 					bgTrees.animation.add('treeLoop', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 12);
@@ -836,6 +843,7 @@ class PlayState extends MusicBeatState
 					evilbg.antialiasing = false;
 					evilbg.visible = false;
 					add(evilbg);
+					schoolPostCreate();
 				}
 			case 'schoolEvilEX':
 				{
@@ -2590,6 +2598,9 @@ class PlayState extends MusicBeatState
        ///// cuuu
 
 	  	trace("story diff", storyDifficulty);
+		switch(curSong.toLowerCase()){
+			case "bara no yume": bnyPostCreate();
+		}
 		Paths.clearUnusedMemory();
 	}
 	//end of create
@@ -6339,7 +6350,8 @@ class PlayState extends MusicBeatState
 	}
 
 	override function stepHit()
-	{
+	{	
+		anotherStepHit();
 		if (!startingSong && !endingSong && !inCutscene && !vocalsFinished)
 		{
 			var vocalOffset:Float = Math.abs(vocals.time - FlxG.sound.music.time);
@@ -6457,9 +6469,9 @@ class PlayState extends MusicBeatState
 					switch (curStep)
 					{
 						case 1360:
-							glitchySchool(1);
+							// glitchySchool(1);
 						case 1552:
-							glitchySchool(0);
+							// glitchySchool(0);
 					}
 				case 'my confession':
 					switch (curStep)
@@ -8946,7 +8958,7 @@ class PlayState extends MusicBeatState
 		else
 			openSubState(new PauseSubState(forcedPause));
 	}
-}
+
 
 /* Hi :)
 Wc    ckkkkkkkkkc     ,xkkkkkkkxkxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkx; 
@@ -8989,3 +9001,51 @@ l.,dkxkxl.       .l0XXXXXXXXKKXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXd
 .,::ldddxxxxxdxxxdxdlc;;xkxoodxl.      cXNxcdxocccccc;.     ........          'ldkkkkkx:. .cxkkkkkkk
 ddxxxxxxxxddxxxxxdxdol;dNWW0l:llc'   .lXNklclldkOkkdlc.    'lddddddl;',,,,'.    'okkkko.  ;dkkkkkkkk
 */
+
+/////// additions
+
+function anotherStepHit():Void {
+	switch(curSong.toLowerCase()){
+		case "bara no yume": bnyStepHit(curStep);
+	}
+}
+var stageProps:Array<Dynamic> = [];
+//// stages
+
+function schoolCreate():Void {}
+function schoolPostCreate():Void {
+	for(i in [bgSky, bgSchool, bgStreet, fgTrees, bgTrees, bgGirls, evilbg, treeLeaves]){
+		stageProps.push(i);
+		i.color = 0xFF111111;
+	}
+}
+
+//// songs
+function bnyPostCreate():Void {
+}
+
+function bnyStepHit(curStep:Int):Void {
+/// 272 		stage fade in
+/// 464 		turns to school evil
+/// 1548		chars white and bg not visible
+/// 1800 		all black
+	switch(curStep){
+		case 272: for(e in stageProps) FlxTween.color(e, 1, e.color, 0xFFFFFFFF);
+		case 464:
+		 	glitchySchool(1);
+		case 1548:
+			FlxG.camera.flash(0xFFFFFFFF, Conductor.crochet / 1000, true);
+			for(e in stageProps) e.visible = false;
+			defaultCamZoom -= 0.4;
+			dad.colorTransform.color = 0xFFFFFFFF;
+			boyfriend.colorTransform.color = 0xFFFFFFFF;
+			gf.colorTransform.color = 0xFF777777;
+		case 1800: 
+			dad.visible = false;
+			gf.visible = false;
+			boyfriend.visible = false;
+			
+	}
+}
+
+}

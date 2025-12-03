@@ -76,7 +76,8 @@ class DokiFreeplayState extends MusicBeatState
 		'epiphany',
 		'baka',
 		'shrinking violet',
-		'love n funkin'
+		'love n funkin',
+		'dual demise'
 	];
 
 	public static function loadDiff(diff:Int, name:String, array:Array<SwagSong>)
@@ -469,7 +470,7 @@ class DokiFreeplayState extends MusicBeatState
 					diffType = 0;
 					diff.visible = true;
 					diffselect = true;
-				case 'baka' | 'shrinking violet' | 'love n funkin':
+				case 'baka' | 'shrinking violet' | 'love n funkin' | 'dual demise':
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 					diffType = 1;
 					diff.visible = true;
