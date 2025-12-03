@@ -307,8 +307,8 @@ class DokiFreeplayState extends MusicBeatState
 
 		add(mouseManager);
 		if(curPage == 3){
-			grpSongs.members[0].y -= 30;
-			grpSongs.members[1].y += 15;
+			grpSongs.members[0].y -= 45;
+			grpSongs.members[1].y += 5;
 		}
 		super.create();
 	}
