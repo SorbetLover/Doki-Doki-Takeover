@@ -18,10 +18,10 @@ import Discord.DiscordClient;
 import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
 import haxe.io.Path;
-import sys.FileSystem;
-import sys.io.File;
 import sys.io.Process;
 #end
+import sys.FileSystem;
+import sys.io.File;
 
 using StringTools;
 
@@ -93,8 +93,46 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 		#end
+		////// discarded, this doesnt work at all
+			// if(FlxG.save.data.customGameSize != null && FlxG.save.data.customGameSize[0] != null && FlxG.save.data.customGameSize[1] != null){
+			// 	gameWidth = 	FlxG.save.data.customGameSize[0];
+			// 	gameHeight = 	FlxG.save.data.customGameSize[1];
+			// }
+			// if (FlxG.save != null && FlxG.save.data != null)
+			// {
+			// 	var size = FlxG.save.data.customGameSize;
 
-		game = new FlxGame(gameWidth, gameHeight, initialState, #if (flixel < "5.0.0") zoom, #end framerate, framerate, skipSplash, startFullscreen);
+			// 	if (size != null && size.length >= 2)
+			// 	{
+			// 		var w = Std.parseInt(size[0]);
+			// 		var h = Std.parseInt(size[1]);
+
+			// 		if (w != null && h != null)
+			// 		{
+			// 			gameWidth = w;
+			// 			gameHeight = h;
+			// 		}
+			// 	}
+			// }
+		///// end of discard
+		var path = "./assets/gameSize.txt";
+		if (FileSystem.exists(path))
+		{
+			var content = File.getContent(path).split("\n");
+
+			if (content.length >= 2)
+			{
+				var w = Std.parseInt(content[0]);
+				var h = Std.parseInt(content[1]);
+
+				if (w != null && h != null)
+				{
+					gameWidth = w;
+					gameHeight = h;
+				}
+			}
+		}
+			game = new FlxGame(gameWidth, gameHeight, initialState, #if (flixel < "5.0.0") zoom, #end framerate, framerate, skipSplash, startFullscreen);
 		addChild(game);
 
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);

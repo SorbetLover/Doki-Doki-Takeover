@@ -306,7 +306,10 @@ class DokiFreeplayState extends MusicBeatState
 			add(costumeSelect);
 
 		add(mouseManager);
-
+		if(curPage == 3){
+			grpSongs.members[0].y -= 30;
+			grpSongs.members[1].y += 15;
+		}
 		super.create();
 	}
 
@@ -350,7 +353,7 @@ class DokiFreeplayState extends MusicBeatState
 			if (SaveData.beatProtag && FlxG.keys.justPressed.C && (curPage != 3 && curPage != 4))
 				MusicBeatState.switchState(new CostumeSelectState());
 
-			if (controls.UP_P && !diffselect && (curPage != 3 && curPage != 4))
+			if (controls.UP_P && !diffselect && (curPage != 4))
 			{
 				if ((curPage == 1 && !SaveData.beatEncore) || (curPage == 2 && !SaveData.beatPrologue))
 				{
@@ -362,7 +365,7 @@ class DokiFreeplayState extends MusicBeatState
 				}
 			}
 
-			if (controls.DOWN_P && !diffselect && (curPage != 3 && curPage != 4))
+			if (controls.DOWN_P && !diffselect && (curPage != 4))
 			{
 				if ((curPage == 1 && !SaveData.beatEncore) || (curPage == 2 && !SaveData.beatPrologue))
 				{
@@ -525,39 +528,48 @@ class DokiFreeplayState extends MusicBeatState
 	}
 
 	function loadSong(isCharting:Bool = false)
-	{
-		var poop:String = Highscore.formatSong(songs[curSelected].songName + diffsuffix, curDifficulty);
+	{	
+		if(curPage == 3 && curSelected == 1){
+					PlayState.SONG = Song.loadFromJson("epiphany-easy", "epiphany");
+					PlayState.storyDifficulty = curDifficulty;
+					LoadingState.loadAndSwitchState(new PlayState());
 
-		PlayState.isStoryMode = false;
+		} else {
+				
+				var poop:String = Highscore.formatSong(songs[curSelected].songName + diffsuffix, curDifficulty);
 
-		try
-		{
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase() + diffsuffix);
-			PlayState.storyDifficulty = curDifficulty;
+				PlayState.isStoryMode = false;
+
+				try
+				{
+					PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase() + diffsuffix);
+					PlayState.storyDifficulty = curDifficulty;
+				}
+				catch (e)
+				{
+					poop = Highscore.formatSong(songs[curSelected].songName, 1);
+					PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase() + diffsuffix);
+					PlayState.storyDifficulty = 1;
+				}
+
+				PlayState.storyWeek = songs[curSelected].week;
+
+				if (FlxG.keys.pressed.E && FlxG.keys.pressed.R && FlxG.keys.pressed.B)
+					PlayState.SONG = Song.loadFromJson('erb', 'erb');
+
+				if (FlxG.keys.pressed.P)
+					PlayState.practiceMode = true;
+
+				// force disable dialogue
+				if (FlxG.keys.pressed.F)
+					PlayState.ForceDisableDialogue = true;
+
+				if (isCharting)
+					LoadingState.loadAndSwitchState(new ChartingState());
+				else
+					LoadingState.loadAndSwitchState(new PlayState());
 		}
-		catch (e)
-		{
-			poop = Highscore.formatSong(songs[curSelected].songName, 1);
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase() + diffsuffix);
-			PlayState.storyDifficulty = 1;
-		}
-
-		PlayState.storyWeek = songs[curSelected].week;
-
-		if (FlxG.keys.pressed.E && FlxG.keys.pressed.R && FlxG.keys.pressed.B)
-			PlayState.SONG = Song.loadFromJson('erb', 'erb');
-
-		if (FlxG.keys.pressed.P)
-			PlayState.practiceMode = true;
-
-		// force disable dialogue
-		if (FlxG.keys.pressed.F)
-			PlayState.ForceDisableDialogue = true;
-
-		if (isCharting)
-			LoadingState.loadAndSwitchState(new ChartingState());
-		else
-			LoadingState.loadAndSwitchState(new PlayState());
+			
 	}
 
 	function changeDiff(change:Int = 0):Void

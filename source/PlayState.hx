@@ -1972,6 +1972,7 @@ class PlayState extends MusicBeatState
 				addCharacterToList("bigmonika-dead");
 				if (storyDifficulty == 2)
 					CoolUtil.precacheVoices(SONG.song, '', '_Lyrics');
+				
 			case 'neet':
 				CoolUtil.precacheSound('spotlight');
 			case 'you and me':
@@ -2586,9 +2587,12 @@ class PlayState extends MusicBeatState
 		super.create();
 
 		CustomFadeTransition.nextCamera = camOverlay;
+       ///// cuuu
 
+	  	trace("story diff", storyDifficulty);
 		Paths.clearUnusedMemory();
 	}
+	//end of create
 
 	function set_songSpeed(value:Float):Float
 	{
@@ -2836,6 +2840,9 @@ class PlayState extends MusicBeatState
 				blackScreen.alpha = 0.0001;
 				startCountdown();
 			case 'epiphany':
+				if (storyDifficulty == 1)
+					addcharacter("bigmonika-b", 1);
+				
 				if (storyDifficulty == 2)
 					addcharacter("bigmonika-dress", 1);
 				else
@@ -3684,8 +3691,12 @@ class PlayState extends MusicBeatState
 			vocalsFinished = true;
 		}
 
-		if (curSong.toLowerCase() == 'epiphany' && storyDifficulty == 2)
+		if (curSong.toLowerCase() == 'epiphany' && storyDifficulty == 2){
 			changeVocalTrack('', '_Lyrics');
+		}
+		if (curSong.toLowerCase() == 'epiphany' && storyDifficulty == 1){
+			changeVocalTrack('', '_Bside');
+		}
 
 		if (paused)
 		{
@@ -7706,7 +7717,7 @@ class PlayState extends MusicBeatState
 
 	function libShader(show:Bool = true, old:Bool = false)
 	{
-		#if !linux
+		#if windows
 		if (SaveData.shaders && !SaveData.lowEnd)
 		{
 			var shader = old ? staticlol : glitchlol;

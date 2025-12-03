@@ -93,58 +93,58 @@ class CostumeSelectState extends MusicBeatState
 			true, // Uniform, unlocked by default
 			true, // Regular, unlocked by default
 			true, // Minus, unlocked by default
-			SaveData.getSoftSave() || SaveData.unlockSoftCostume, // Soft Pico, save check for Soft Mod or mirror mode It's complicated with festy costume
-			Highscore.getMirrorScore('Love n Funkin', 1) > 0, // Blue Skies, play Love n' Funkin' on Mirror Mode
-			SaveData.unlockHFCostume, // HoloFunk, unlocked by clicking on sticker
-			SaveData.beatLibitina // TBD-tan, beat Libitina
+			true, // Soft Pico, save check for Soft Mod or mirror mode It's complicated with festy costume
+			true, // Blue Skies, play Love n' Funkin' on Mirror Mode
+			true, // HoloFunk, unlocked by clicking on sticker
+			true // TBD-tan, beat Libitina
 		],
 		// Monika
 		[
 			true, // Uniform, unlocked by default
 			true, // Casual, unlocked by default
-			Highscore.getScore('Epiphany', 2) > 0, // valentine, unlocks if Epiphany with Lyrics is beaten
-			Highscore.getAccuracyUnlock('Glitcher (Monika Mix)', 2) >= 90, // Festival, unlocks if Glitcher (Hard) is 90%+ accuracy
-			Highscore.getMirrorScore('Wilted', 1) > 0, // Friends, play Wilted on Mirror Mode
-			Highscore.getMirrorScore('Reconciliation', 2) > 0, // Blue Skies, play Reconciliation (Hard) on Mirror Mode
-			SaveData.yamMonika // Vigilante, choose Monika on You and Me
+			true, // valentine, unlocks if Epiphany with Lyrics is beaten
+			true, // Festival, unlocks if Glitcher (Hard) is 90%+ accuracy
+			true, // Friends, play Wilted on Mirror Mode
+			true, // Blue Skies, play Reconciliation (Hard) on Mirror Mode
+			true // Vigilante, choose Monika on You and Me
 		],
 		// Sayori
 		[
 			true, // Uniform, unlocked by default
 			true, // Casual, unlocked by default
-			SaveData.getBadEndSave() || Highscore.getMirrorScore('Joyride', 2) > 0, // Sleep Wear, save check for BAD ENDING
-			SaveData.yamSayori, // Picnic, choose Sayori on You and Me
-			Highscore.getAccuracyUnlock("It's Complicated (Sayori Mix)", 2) >= 90, // Festival, unlocks if It's Complicated (Hard) is 90%+ accuracy
-			Highscore.getAccuracyUnlock('Constricted', 2) >= 90, // Friends, unlocks if Constricted (Hard) is 90%+ accuracy
-			Highscore.getMirrorScore('My Confession', 2) > 0 // Blue Skies, play My Confession (Hard) on Mirror Mode
+			true, // Sleep Wear, save check for BAD ENDING
+			true, // Picnic, choose Sayori on You and Me
+			true, // Festival, unlocks if It's Complicated (Hard) is 90%+ accuracy
+			true, // Friends, unlocks if Constricted (Hard) is 90%+ accuracy
+			true // Blue Skies, play My Confession (Hard) on Mirror Mode
 		],
 		// Natsuki
 		[
 			true, // Uniform, unlocked by default
 			true, // Casual, unlocked by default
-			SaveData.yamNatsuki, // Skater, choose Natsuki on You and Me
-			Highscore.getAccuracyUnlock('Beathoven (Natsuki Mix)', 2) >= 90, // Festival, unlocks if Beathoven (Hard) is 90%+ accuracy
-			SaveData.getSundaySave() || Highscore.getMirrorScore('Baka', 2) > 0, // Friends, save checks for Sunday
-			SaveData.unlockAntipathyCostume, // Antipathy, unlocked by clicking on artwork
-			Highscore.getScore('Catfight', 1) > 0 // Blue Skies, pick Natsu on Catfight (Hard)
+			true, // Skater, choose Natsuki on You and Me
+			true, // Festival, unlocks if Beathoven (Hard) is 90%+ accuracy
+			true, // Friends, save checks for Sunday
+			true, // Antipathy, unlocked by clicking on artwork
+			true // Blue Skies, pick Natsu on Catfight (Hard)
 		],
 		// Yuri
 		[
 			true, // Uniform, unlocked by default
 			true, // Casual, unlocked by default
-			Highscore.getMirrorScore('Catfight', 2) > 0, // Derby, pick Yuri on Catfight (Hard)
-			SaveData.yamYuri, // Picnic, choose Yuri on You and Me
-			Highscore.getAccuracyUnlock('Crucify (Yuri Mix)', 2) >= 90, // Festival, unlocks if Crucify (Hard) is 90%+ accuracy
-			SaveData.getTabiSave() || Highscore.getMirrorScore('Obsession', 2) > 0, // Friends, save check for Tabi
-			Highscore.getMirrorScore('Shrinking Violet', 2) > 0 // Blue Skies, play Deep Breaths (Hard) on Mirror Mode
+			true, // Derby, pick Yuri on Catfight (Hard)
+			true, // Picnic, choose Yuri on You and Me
+			true, // Festival, unlocks if Crucify (Hard) is 90%+ accuracy
+			true, // Friends, save check for Tabi
+			true // Blue Skies, play Deep Breaths (Hard) on Mirror Mode
 		],
 		// Protag
 		[
 			true, // Uniform, unlocked by default
 			true, // Casual, unlocked by default
-			SaveData.getFlixelSave('Hotline024', 'Hotline024') || Highscore.getMirrorScore('Deep Breaths', 2) > 0 && Highscore.getMirrorScore('Poems n Thorns', 2) > 0, // Hotline, save check for Hotline 024
-			Highscore.getAccuracyUnlock('Titular (MC Mix)', 2) >= 90, // Henry, unlocks if Titular is 90%+ accuracy
-			SaveData.yamLoss // Blue Skies, fail You and Me by not picking a doki
+			true , // Hotline, save check for Hotline 024
+			true, // Henry, unlocks if Titular is 90%+ accuracy
+			true // Blue Skies, fail You and Me by not picking a doki
 		]
 	];
 	var costumeJSON:CostumeJSON = null;

@@ -16,7 +16,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import shaders.ColorMaskShader;
-
 class OptionsState extends MusicBeatState
 {
 	public static var instance:OptionsState;
@@ -82,9 +81,7 @@ class OptionsState extends MusicBeatState
 			#if FEATURE_GAMEJOLT
 			new GameJolt(LangUtil.getString('descGameJolt', 'option')),
 			#end
-			#if FEATURE_UNLOCK
 			new UnlockAll("Unlocks everything that's offered in this game. Does not unlock costumes with requirements."),
-			#end
 			new ResetScore(LangUtil.getString('descScoreReset', 'option')),
 			new ResetStory(LangUtil.getString('descStoryReset', 'option')),
 			new ResetSave(LangUtil.getString('descSaveReset', 'option'))
@@ -177,6 +174,14 @@ class OptionsState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		//// custom size opening 
+		//////////////////////// doesnt work here
+		// if(FlxG.keys.justPressed.M){
+			// trace("opening start");
+			// openSubState(new CustomSizeSubState());	
+			// trace("opening end");
+		// }
+
 		if (acceptInput)
 		{
 			if (controls.BACK && !isCat)

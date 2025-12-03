@@ -1,0 +1,53 @@
+[32m_[1m/\\\\\\[0m[32m______________________________________________[0m
+[32m_[1m\////\\\[0m[32m______________________________________________[0m
+[32m_____[1m\/\\\[0m[32m_____[1m/\\\[0m[32m_____________________________________[0m
+[32m______[1m\/\\\[0m[32m____[1m\///[0m[32m_____[1m/\\\\\[0m[32m__[1m/\\\\\[0m[32m_______[1m/\\\\\\\\[0m[32m___[0m
+[32m_______[1m\/\\\[0m[32m_____[1m/\\\[0m[32m__[1m/\\\///\\\\\///\\\[0m[32m___[1m/\\\/////\\\[0m[32m__[0m
+[32m________[1m\/\\\[0m[32m____[1m\/\\\[0m[32m_[1m\/\\\[0m[32m_[1m\//\\\[0m[32m__[1m\/\\\[0m[32m__[1m/\\\\\\\\\\\[0m[32m___[0m
+[32m_________[1m\/\\\[0m[32m____[1m\/\\\[0m[32m_[1m\/\\\[0m[32m__[1m\/\\\[0m[32m__[1m\/\\\[0m[32m_[1m\//\\///////[0m[32m____[0m
+[32m________[1m/\\\\\\\\\[0m[32m_[1m\/\\\[0m[32m_[1m\/\\\[0m[32m__[1m\/\\\[0m[32m__[1m\/\\\[0m[32m__[1m\//\\\\\\\\\\[0m[32m__[0m
+[32m________[1m\/////////[0m[32m__[1m\///[0m[32m__[1m\///[0m[32m___[1m\///[0m[32m___[1m\///[0m[32m____[1m\//////////[0m[32m___[0m
+
+[1mLime Command-Line Tools[0;1m (8.1.1)[0m
+
+[32;1mInitializing project...[0m
+[32;1mUsing project file: /home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/Project.xml[0m
+[32;1mReading Lime config: /home/sorbetlover/.lime/config.xml[0m
+
+[32;1mRunning command: UPDATE[0m
+ - [1mDetecting font name:[0m assets/fonts/Aller_Rg.ttf [3;37m->[0m "Aller"
+ - [1mDetecting font name:[0m assets/fonts/CyberpunkWaifus.ttf [3;37m->[0m "CyberpunkWaifus"
+ - [1mDetecting font name:[0m assets/fonts/GoNotoCurrent.ttf [3;37m->[0m "Go Noto Current Regular"
+ - [1mDetecting font name:[0m assets/fonts/HKGrotesk-Bold.otf [3;37m->[0m "HK Grotesk Bold"
+ - [1mDetecting font name:[0m assets/fonts/Halogen.otf [3;37m->[0m "Halogen"
+ - [1mDetecting font name:[0m assets/fonts/Journal.TTF [3;37m->[0m "Journal"
+ - [1mDetecting font name:[0m assets/fonts/LanaPixel.ttf [3;37m->[0m "LanaPixel"
+ - [1mDetecting font name:[0m assets/fonts/NotoSansJP-Medium.otf [3;37m->[0m "Noto Sans JP Medium"
+ - [1mDetecting font name:[0m assets/fonts/Perfect DOS VGA 437 Win.ttf [3;37m->[0m "Perfect DOS VGA 437 Win"
+ - [1mDetecting font name:[0m assets/fonts/Ubuntu-B.ttf [3;37m->[0m "Ubuntu Bold"
+ - [1mDetecting font name:[0m assets/fonts/riffic.ttf [3;37m->[0m "Riffic Free Bold"
+ - [1mDetecting font name:[0m assets/fonts/vcr.ttf [3;37m->[0m "VCR OSD Mono"
+ - [1mDetecting font name:[0m /home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flixel/5,5,0/assets/fonts/nokiafc22.ttf [3;37m->[0m "Nokia Cellphone FC Small"
+ - [1mDetecting font name:[0m /home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flixel/5,5,0/assets/fonts/monsterrat.ttf [3;37m->[0m "Monsterrat"
+ - [1mCopying template file:[0m /home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/openfl/9,3,2/assets/templates/haxe/ApplicationMain.hx [3;37m->[0m export/release/linux/haxe/ApplicationMain.hx
+ - [1mWriting file:[0m export/release/linux/bin/manifest/songs.json
+ - [1mWriting file:[0m export/release/linux/bin/manifest/shared.json
+ - [1mWriting file:[0m export/release/linux/bin/manifest/week6.json
+ - [1mWriting file:[0m export/release/linux/bin/manifest/doki.json
+ - [1mWriting file:[0m export/release/linux/bin/manifest/default.json
+
+[32;1mRunning command: BUILD[0m
+ - [1mCopying library file:[0m /home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/lime/8,1,1/ndll/Linux64/lime.ndll [3;37m->[0m export/release/linux/bin/lime.ndll
+ - [1mRunning command:[0m haxe export/release/linux/haxe/release.hxml -D HXCPP_M64
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/discord_rpc/1,0,0/discord_rpc/DiscordRpc.hx:213: characters 1-7 : Warning : (WDeprecatedEnumAbstract) `@:enum abstract` is deprecated in favor of `enum abstract`
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/firetongue/2,1,0/firetongue/FireTongue.hx:1547: characters 1-7 : Warning : (WDeprecatedEnumAbstract) `@:enum abstract` is deprecated in favor of `enum abstract`
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/firetongue/2,1,0/firetongue/FireTongue.hx:1571: characters 1-7 : Warning : (WDeprecatedEnumAbstract) `@:enum abstract` is deprecated in favor of `enum abstract`
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/animate/FlxAnim.hx:26: characters 9-17 : Warning : (WDeprecated) flixel.system.FlxSound was moved to flixel.sound.FlxSound
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/FlxAnimate.hx:331: characters 97-105 : Warning : (WDeprecated) flixel.system.FlxSound was moved to flixel.sound.FlxSound
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/frames/FlxAnimateFrames.hx:142: characters 21-27 : Field concat should be declared with 'override' since it is inherited from superclass flixel.graphics.frames.FlxAtlasFrames
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/frames/FlxAnimateFrames.hx:142: characters 21-27 : Field concat overrides parent class with different or incomplete type
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flixel/5,5,0/flixel/graphics/frames/FlxAtlasFrames.hx:457: characters 18-24 : ... Base field is defined here
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/frames/FlxAnimateFrames.hx:142: characters 21-27 : ... Different number of function arguments
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/animate/ButtonEvent.hx:16: characters 19-27 : Warning : (WDeprecated) flixel.system.FlxSound was moved to flixel.sound.FlxSound
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flxanimate/3,0,4/flxanimate/animate/ButtonEvent.hx:23: characters 51-59 : Warning : (WDeprecated) flixel.system.FlxSound was moved to flixel.sound.FlxSound
+/home/sorbetlover/Documentos/SOURCE/Doki-Doki-Takeover-main/.haxelib/flixel-ui/2,5,0/flixel/addons/ui/FlxUICursor.hx:564: characters 9-11 : Warning : Potential typo detected (expected similar values are flixel.addons.ui.SortMethod.ID)

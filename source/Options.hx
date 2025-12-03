@@ -912,7 +912,6 @@ class AutoPause extends Option
 	}
 }
 
-#if FEATURE_UNLOCK
 class UnlockAll extends Option
 {
 	public function new(desc:String)
@@ -933,7 +932,7 @@ class UnlockAll extends Option
 		return "Unlock All";
 	}
 }
-#end
+
 
 class JudgementCounter extends Option
 {

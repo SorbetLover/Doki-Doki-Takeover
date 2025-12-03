@@ -26,7 +26,6 @@
 	<define name="PUBLIC_BUILD" unless="debug" />
 
 	<!-- Defines whether the Discord client should be enabled. -->
-	<define name="FEATURE_DISCORD" if="desktop PUBLIC_BUILD" unless="hl"/>
 	<!-- Defines whether the file system can be read/written directly. Does not work in browser. -->
 	<define name="FEATURE_FILESYSTEM" if="desktop" />
 	<!-- Defines whether MP4 videos should be enabled. -->
@@ -77,6 +76,7 @@
 	<assets path="assets/shared" library="shared"/>
 	<assets path="assets/week6" library="week6"/>
 	<assets path="assets/doki" library="doki"/>
+	<assets path="assets" include="gameSize.txt" />
 
 	<assets path="assets/videos"/>
 
@@ -111,7 +111,7 @@
 	<haxelib name="hxCodec" if="FEATURE_MP4"/>
 	<haxelib name="extension-androidtools" if="android" />
 
-	<haxelib name="discord_rpc" if="FEATURE_DISCORD"/>
+	<haxelib name="discord_rpc"/>
 
 	<!-- https://github.com/TentaRJ/GameJolt-FNF-Integration -->
 	<haxelib name="tentools" if="FEATURE_GAMEJOLT" />
