@@ -462,8 +462,9 @@ class PlayState extends MusicBeatState
 	public static var sectionStartTime:Float = 0;
 
 	/// sorbetlover modding things
-
-
+	var zoomLerpSpeed:Float = 0.05;
+	var whril:WhrilShader;
+	var whrilVars:Array<Float> = [1,1,1,1];
 
 	/// end of sorbetlover modding things
 	override public function create()
@@ -5034,7 +5035,9 @@ class PlayState extends MusicBeatState
 
 		if (zoomStuff && camZooming)
 		{
-			FlxG.camera.zoom = defaultCamZoom + 0.95 * (FlxG.camera.zoom - defaultCamZoom);
+			// FlxG.camera.zoom = defaultCamZoom + 0.95 * (FlxG.camera.zoom - defaultCamZoom);
+			FlxG.camera.zoom = FlxMath.lerp(FlxG.camera.zoom, defaultCamZoom, zoomLerpSpeed);
+
 			camGame2.zoom = defaultCamZoom + 0.95 * (FlxG.camera.zoom - defaultCamZoom);
 			camHUD.zoom = defaultHudZoom + 0.95 * (camHUD.zoom - defaultHudZoom);
 		}
@@ -5226,7 +5229,11 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+
+		otherUpdate(elapsed);
 	}
+
+	//end of update
 
 	function songOutro():Void
 	{
@@ -9002,15 +9009,34 @@ l.,dkxkxl.       .l0XXXXXXXXKKXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXd
 ddxxxxxxxxddxxxxxdxdol;dNWW0l:llc'   .lXNklclldkOkkdlc.    'lddddddl;',,,,'.    'okkkko.  ;dkkkkkkkk
 */
 
+var whrilmoving:Bool = false; 
 /////// additions
-
+function otherUpdate(elapsed:Float):Void{
+	switch(curSong.toLowerCase()){
+		case "bara no yume": whrilUpdate(elapsed);
+	}
+}
 function anotherStepHit():Void {
 	switch(curSong.toLowerCase()){
 		case "bara no yume": bnyStepHit(curStep);
 	}
 }
-var stageProps:Array<Dynamic> = [];
+//// objs shit
+
+function whrilUpdate(elapsed:Float):Void {
+	// public function updateShader(strength:Float = 1, radius:Float = 1, falloff:Float = 1, speed:Float = 1){
+	if(whrilmoving){
+		whrilVars[0] += elapsed * 15;
+		if(whril != null){
+			whril.updateShader(whrilVars[0],whrilVars[1],whrilVars[2],whrilVars[3]);
+		}
+	} else {
+			whril.updateShader(0,0,0,0);
+	}
+}
+
 //// stages
+var stageProps:Array<Dynamic> = [];
 
 function schoolCreate():Void {}
 function schoolPostCreate():Void {
@@ -9022,6 +9048,10 @@ function schoolPostCreate():Void {
 
 //// songs
 function bnyPostCreate():Void {
+	whril = new WhrilShader(whrilVars[0],whrilVars[1],whrilVars[2],whrilVars[3]);
+	camGame.filters = [new ShaderFilter(whril)];
+	whrilVars = [0.04, 1, 4, 1];
+
 }
 
 function bnyStepHit(curStep:Int):Void {
@@ -9029,10 +9059,23 @@ function bnyStepHit(curStep:Int):Void {
 /// 464 		turns to school evil
 /// 1548		chars white and bg not visible
 /// 1800 		all black
+
+/// 524 		whril starts
+/// 528 		whril stops
 	switch(curStep){
 		case 272: for(e in stageProps) FlxTween.color(e, 1, e.color, 0xFFFFFFFF);
 		case 464:
 		 	glitchySchool(1);
+		case 524: 
+		 	whrilmoving = true;
+			defaultCamZoom += 2;
+		case 528:
+ 			whrilmoving = false;
+			zoomLerpSpeed = 0.15;
+			FlxG.camera.flash(0xFF141452, 1, true);
+			defaultCamZoom -= 2;
+		case 540:
+			zoomLerpSpeed = 0.05;
 		case 1548:
 			FlxG.camera.flash(0xFFFFFFFF, Conductor.crochet / 1000, true);
 			for(e in stageProps) e.visible = false;
