@@ -188,7 +188,7 @@ class PlayState extends MusicBeatState
 
 	private var camZooming:Bool = false;
 	private var camFocus:Bool = true;
-	private var curSong:String = "";
+	public var curSong:String = "";
 
 	private var gfSpeed:Int = 1;
 	private var health:Float = 1;
@@ -564,6 +564,7 @@ class PlayState extends MusicBeatState
 			toggleBotplay = SaveData.botplay;
 
 		// Making difficulty text for Discord Rich Presence/Song Position Bar.
+		/// DIFFICULTY NAMES
 		switch (storyDifficulty)
 		{
 			case 0:
@@ -843,6 +844,7 @@ class PlayState extends MusicBeatState
 					evilbg.scale.set(6, 6);
 					evilbg.antialiasing = false;
 					evilbg.visible = false;
+					evilbg.y += 10;
 					add(evilbg);
 					schoolPostCreate();
 				}
@@ -881,6 +883,7 @@ class PlayState extends MusicBeatState
 					evilbg = new BGSprite('weeb/animatedEvilSchool', 'week6', 400, 200, 0.8, 0.9, ['background 2'], true);
 					evilbg.scale.set(6, 6);
 					evilbg.antialiasing = false;
+					evilbg.y += 10;
 					add(evilbg);
 				}
 			case 'schoolEvil':
@@ -1778,10 +1781,11 @@ class PlayState extends MusicBeatState
 			case 'youandme':
 				{
 					//In the sky is 579X and -3404Y for the start of the song
-
+					skippingto = 97000;
 					var posX:Int = -155;
 					var posY:Int = -795;
 					var scale:Float = 1.2;
+					canskip = true;
 
 					var sky:BGSprite = new BGSprite('ynm/skybox', 'doki', posX, posY, 0.2, 0.2);
 					sky.setGraphicSize(Std.int(sky.width * scale));
@@ -2602,6 +2606,9 @@ class PlayState extends MusicBeatState
 		switch(curSong.toLowerCase()){
 			case "bara no yume": bnyPostCreate();
 		}
+
+		// trace(curSong + "\n" + curSong.toLowerCase());
+		// scoreTxt.text = (curSong.toLowerCase());
 		Paths.clearUnusedMemory();
 	}
 	//end of create
@@ -2852,9 +2859,10 @@ class PlayState extends MusicBeatState
 				blackScreen.alpha = 0.0001;
 				startCountdown();
 			case 'epiphany':
+			///// B EPIPHANY
 				if (storyDifficulty == 1)
 					addcharacter("bigmonika-b", 1);
-				
+			///// end of b epiphany
 				if (storyDifficulty == 2)
 					addcharacter("bigmonika-dress", 1);
 				else
@@ -4520,8 +4528,14 @@ class PlayState extends MusicBeatState
 
 	var iTime:Float = 0;
 
+	function set_isskip(){
+		if(isskip == false){
+			Conductor.playbackSpeed = 1;
+		}
+	}
 	override public function update(elapsed:Float)
 	{
+
 		if (SaveData.shaders)
 		{
 			iTime += elapsed;
@@ -7193,6 +7207,7 @@ class PlayState extends MusicBeatState
 									{ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
 							}
 						case 248:
+
 							blackBars(true);
 							FlxTween.tween(camFollow, {y: 326}, 3, {
 								ease: FlxEase.linear,
@@ -9039,18 +9054,19 @@ function whrilUpdate(elapsed:Float):Void {
 var stageProps:Array<Dynamic> = [];
 
 function schoolCreate():Void {}
-function schoolPostCreate():Void {
+function schoolPostCreate():Void {}
+
+//// songs
+function bnyPostCreate():Void {
 	for(i in [bgSky, bgSchool, bgStreet, fgTrees, bgTrees, bgGirls, evilbg, treeLeaves]){
 		stageProps.push(i);
 		i.color = 0xFF111111;
 	}
-}
-
-//// songs
-function bnyPostCreate():Void {
-	whril = new WhrilShader(whrilVars[0],whrilVars[1],whrilVars[2],whrilVars[3]);
-	camGame.filters = [new ShaderFilter(whril)];
-	whrilVars = [0.04, 1, 4, 1];
+	if(curSong.toLowerCase() == "bara no yume"){
+		whril = new WhrilShader(whrilVars[0],whrilVars[1],whrilVars[2],whrilVars[3]);
+		camGame.filters = [new ShaderFilter(whril)];
+		whrilVars = [0.04, 1, 4, 1];
+	}
 
 }
 
@@ -9062,14 +9078,15 @@ function bnyStepHit(curStep:Int):Void {
 
 /// 524 		whril starts
 /// 528 		whril stops
+
 	switch(curStep){
 		case 272: for(e in stageProps) FlxTween.color(e, 1, e.color, 0xFFFFFFFF);
-		case 464:
-		 	glitchySchool(1);
+		// case 464:
 		case 524: 
 		 	whrilmoving = true;
 			defaultCamZoom += 2;
 		case 528:
+		 	glitchySchool(1);
  			whrilmoving = false;
 			zoomLerpSpeed = 0.15;
 			FlxG.camera.flash(0xFF141452, 1, true);

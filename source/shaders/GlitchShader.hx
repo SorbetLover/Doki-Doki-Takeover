@@ -2,12 +2,7 @@ package shaders;
 
 import flixel.system.FlxAssets.FlxShader;
 import lime.utils.Assets;
-import haxe.Json;
 
-typedef GlitchJSON =
-{
-	var presets:Array<Array<Float>>;
-}
 
 class GlitchShader extends FlxShader // https://www.shadertoy.com/view/XtyXzW
 {
@@ -295,25 +290,8 @@ class GlitchShader extends FlxShader // https://www.shadertoy.com/view/XtyXzW
 	}
 	')
 
-	var json:GlitchJSON = null;
-	public var preset(default, set):Int = 0;
-
-	function set_preset(value:Int):Int
-	{
-		var presetData:Array<Float> = json.presets[value];
-		data.prob.value = [0.25 - (presetData[0] / 8)];
-		data.intensityChromatic.value = [presetData[1]];
-		return value;
-	}
-
 	public function new(preset:Int = 0)
 	{
 		super();
-
-		var jsonTxt:String = Assets.getText(Paths.json('shader/glitch'));
-		json = cast Json.parse(jsonTxt);
-
-		data.time.value = [0];
-		this.preset = preset;
 	}
 }

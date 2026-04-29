@@ -288,6 +288,8 @@ class MainMenuState extends MusicBeatState
 
 		changeItem();
 
+		SaveData.optionsgambiarra([null]);
+
 		super.create();
 	}
 

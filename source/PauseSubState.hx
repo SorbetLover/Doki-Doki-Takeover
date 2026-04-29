@@ -27,6 +27,7 @@ class PauseSubState extends MusicBeatSubstate
 		"Resume",
 		"Restart Song",
 		//"Change Difficulty",
+		"Options",
 		"Practice Mode",
 		"Exit to Menu"
 	];
@@ -83,10 +84,10 @@ class PauseSubState extends MusicBeatSubstate
 			curCharacter = 0;
 
 		if (PlayState.isStoryMode)
-			pauseOG = ["Resume", "Restart Song", "Exit to Menu"];
+			pauseOG = ["Resume", "Restart Song", "Options", "Exit to Menu"];
 		else if (PlayState.SONG.song.toLowerCase().startsWith('epiphany')
 			|| DokiFreeplayState.singleDiff.contains(PlayState.SONG.song.toLowerCase()))
-			pauseOG = ["Resume", "Restart Song", "Practice Mode", "Exit to Menu"];
+			pauseOG = ["Resume", "Restart Song", "Options", "Practice Mode", "Exit to Menu"];
 
 		menuItems = pauseOG;
 
@@ -118,10 +119,10 @@ class PauseSubState extends MusicBeatSubstate
 		if (isLibitina)
 			pauseArt.x = -pauseArt.width;
 
-		FlxTween.tween(pauseArt, {x: FlxG.width - pauseArt.width}, 1.2, {
-			ease: FlxEase.quartInOut,
-			startDelay: 0.2
-		});
+		// FlxTween.tween(pauseArt, {x: FlxG.width - pauseArt.width}, 1.2, {
+		// 	ease: FlxEase.quartInOut,
+		// 	startDelay: 0.2
+		// });
 	
 		levelInfo = new FlxText(20, 15, 0, "", 32);
 		levelInfo.text += (PlayState.hasMetadata ? PlayState.metadata.song.name : PlayState.SONG.song);
@@ -311,12 +312,25 @@ class PauseSubState extends MusicBeatSubstate
 		changeSelection();
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+		aaaaa();
 	}
-
+	var _jungcookie:Float = 0;
+	var thingvar:Float = 0;
+	var fadeimg:Bool = false;
+	function aaaaa(){
+		thingvar = pauseArt.x;
+	}
 	override function update(elapsed:Float)
-	{
-		super.update(elapsed);
+	{		
 
+		_jungcookie += elapsed;
+		super.update(elapsed);
+		if(fadeimg){
+			pauseArt.alpha = FlxMath.lerp(pauseArt.alpha, 0, 0.09);
+		}
+		thingvar = FlxMath.lerp(thingvar, 500 , 0.07);
+		pauseArt.x = thingvar + ((0 + 25 * Math.sin(_jungcookie / 2)));
+		pauseArt.angle = -(0 + 30 * Math.sin(_jungcookie)) / 10;	 
 		/*
 		if (pauseMusic != null && canPress)
 			Conductor.songPosition = pauseMusic.time;
@@ -409,6 +423,29 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.practiceMode = !PlayState.practiceMode;
 					practiceText.visible = PlayState.practiceMode;
 					speedText.visible = PlayState.practiceMode;
+
+				case "Options":
+					PlayState.sectionStart = false;
+					PlayState.mirrormode = false;
+					PlayState.chartingMode = false;
+					PlayState.practiceMode = false;
+					PlayState.practiceModeToggled = false;
+					PlayState.showCutscene = true;
+					PlayState.deathCounter = 0;
+					Conductor.playbackSpeed = 1;
+					PlayState.toggleBotplay = false;
+					PlayState.ForceDisableDialogue = false;
+					var diffsuffix = "-hard";
+					switch(PlayState.storyDifficulty){
+						case 0: diffsuffix = "-easy";
+						case 1: diffsuffix = "";
+						case 2: diffsuffix = "-hard";
+					}
+					var poop:String = Highscore.formatSong(PlayState.instance.curSong + diffsuffix, PlayState.storyDifficulty);
+																	/// poop, rthing and diff
+					SaveData.optionsgambiarra([poop, PlayState.instance.curSong.toLowerCase(), PlayState.storyDifficulty]);
+					MusicBeatState.switchState(new OptionsState());
+
 				case "Exit to Menu":
 					PlayState.sectionStart = false;
 					PlayState.mirrormode = false;
@@ -505,6 +542,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	function closeMenu()
 	{
+		fadeimg = true;
 		//Tweens!
 		FlxG.sound.play(Paths.sound('confirmMenu'));
 		canPress = false;
@@ -530,6 +568,7 @@ class PauseSubState extends MusicBeatSubstate
 		}
 
 		FlxTween.tween(pauseArt, {x: FlxG.width}, 0.7, {ease: FlxEase.quartInOut});
+
 
 		FlxTween.tween(logo, {x: -500}, 0.7, {ease: FlxEase.quartInOut});
 		FlxTween.tween(logoBl, {x: -500}, 0.7, {ease: FlxEase.quartInOut});

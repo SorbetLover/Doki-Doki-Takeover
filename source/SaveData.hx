@@ -127,6 +127,9 @@ class SaveData
 	public static var gjUser:Dynamic = null;
 	public static var gjToken:Dynamic = null;
 
+	/// gambiarra
+	public static var leSongShit:Array<Dynamic> = [null,null,null]; 
+
 	private static var importantMap:Map<String, Array<String>> =
 	[
 		"flixelSound" => ["volume"]
@@ -193,7 +196,9 @@ class SaveData
 
 		FlxG.save.flush();
 	}
-
+	public static function optionsgambiarra(data:Array<Dynamic>){
+		leSongShit = data;
+	}
 	public static function unlockAll(unlock:Bool = true)
 	{
 		// story mode

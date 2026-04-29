@@ -16,6 +16,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import shaders.ColorMaskShader;
+import flixel.addons.transition.TransitionData;
 class OptionsState extends MusicBeatState
 {
 	public static var instance:OptionsState;
@@ -97,7 +98,8 @@ class OptionsState extends MusicBeatState
 
 	var currentSelectedCat:OptionCategory;
 	var blackBorder:FlxSprite;
-
+	
+	var returntoplaystate = false;
 	override function create()
 	{
 		instance = this;
@@ -166,6 +168,11 @@ class OptionsState extends MusicBeatState
 		FlxTween.tween(blackBorder, {y: FlxG.height - 22}, 2, {ease: FlxEase.elasticInOut});
 
 		changeSelection();
+		var cu:FlxText = new FlxText(100,100,0, Std.string(SaveData.leSongShit), 20);
+		add(cu);
+		cu.x = 30;
+		cu.y = FlxG.height - (cu.height + 10);
+			cu.color = 0xFFff54e0;
 
 		super.create();
 	}
@@ -189,7 +196,15 @@ class OptionsState extends MusicBeatState
 				acceptInput = false;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				SaveData.save();
-				MusicBeatState.switchState(new MainMenuState());
+				if(SaveData.leSongShit[0] != null && SaveData.leSongShit[0] != [null] && SaveData.leSongShit[0] != []){
+					 
+						PlayState.SONG = Song.loadFromJson(SaveData.leSongShit[0], SaveData.leSongShit[1]);
+						PlayState.storyDifficulty = SaveData.leSongShit[2];
+						LoadingState.loadAndSwitchState(new PlayState());
+						SaveData.optionsgambiarra([]);
+				} else {
+					MusicBeatState.switchState(new MainMenuState());
+				}
 			}
 			else if (controls.BACK)
 			{
