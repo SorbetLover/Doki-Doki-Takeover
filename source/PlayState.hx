@@ -1781,11 +1781,9 @@ class PlayState extends MusicBeatState
 			case 'youandme':
 				{
 					//In the sky is 579X and -3404Y for the start of the song
-					skippingto = 97000;
 					var posX:Int = -155;
 					var posY:Int = -795;
 					var scale:Float = 1.2;
-					canskip = true;
 
 					var sky:BGSprite = new BGSprite('ynm/skybox', 'doki', posX, posY, 0.2, 0.2);
 					sky.setGraphicSize(Std.int(sky.width * scale));
@@ -4528,11 +4526,6 @@ class PlayState extends MusicBeatState
 
 	var iTime:Float = 0;
 
-	function set_isskip(){
-		if(isskip == false){
-			Conductor.playbackSpeed = 1;
-		}
-	}
 	override public function update(elapsed:Float)
 	{
 
