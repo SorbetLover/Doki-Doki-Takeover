@@ -471,10 +471,14 @@ class DokiFreeplayState extends MusicBeatState
 					diff.visible = true;
 					diffselect = true;
 				case 'baka' | 'shrinking violet' | 'love n funkin' | 'dual demise':
-					FlxG.sound.play(Paths.sound('confirmMenu'));
-					diffType = 1;
-					diff.visible = true;
-					diffselect = true;
+					if(FlxG.keys.pressed.ALT && songs[curSelected].songName.toLowerCase() == "love n funkin"){
+						startsongalt();
+					} else {
+						FlxG.sound.play(Paths.sound('confirmMenu'));
+						diffType = 1;
+						diff.visible = true;
+						diffselect = true;
+					}
 				default:
 					startsong();
 			}
@@ -527,15 +531,62 @@ class DokiFreeplayState extends MusicBeatState
 			}
 		});
 	}
+	public function startsongalt()
+	{
+		pageFlipped = false;
+		selectedSomethin = true;
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+		menu_character.y -= 31;
+		menu_character.animation.play('pop_off');
+		grpSongs.forEach(function(spr:FlxSprite)
+		{
+			if (curSelected != spr.ID)
+			{
+				FlxTween.tween(spr, {alpha: 0}, 1.3, {
+					ease: FlxEase.quadOut,
+					onComplete: function(twn:FlxTween)
+					{
+						spr.kill();
+					}
+				});
+			}
+			else
+			{
+				if (SaveData.flashing)
+				{
+					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+					{
+						loadSong(false, true);
+					});
+				}
+				else
+				{
+					new FlxTimer().start(1, function(tmr:FlxTimer)
+					{
+						loadSong(false, true);
+					});
+				}
+			}
+		});
+	}
 
-	function loadSong(isCharting:Bool = false)
+	function loadSong(isCharting:Bool = false, sorb:Bool = false)
 	{	
 		if(curPage == 3 && curSelected == 1){
 					PlayState.SONG = Song.loadFromJson("epiphany-easy", "epiphany");
 					PlayState.storyDifficulty = curDifficulty;
 					LoadingState.loadAndSwitchState(new PlayState());
 
-		} else {
+		} else 
+		if (songs[curSelected].songName.toLowerCase() == "love n funkin" && sorb == true) 
+		{
+					
+					PlayState.SONG = Song.loadFromJson("love n funkin-sorb", "love n funkin-sorb");
+					PlayState.storyDifficulty = 1;
+					LoadingState.loadAndSwitchState(new PlayState());
+			
+		} else 
+		{
 				
 				var poop:String = Highscore.formatSong(songs[curSelected].songName + diffsuffix, curDifficulty);
 

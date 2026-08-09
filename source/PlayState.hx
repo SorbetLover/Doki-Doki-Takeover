@@ -1495,7 +1495,7 @@ class PlayState extends MusicBeatState
 					{
 						clubroom.loadGraphic(Paths.image('musicroom/Music_RoomLNF', 'doki'));
 						// picohandoatlas
-						var poemSprite:String = (SONG.song.toLowerCase().endsWith('-alt') ? 'images/notepad/picohandoatlas' : 'images/notepad/handoatlas');
+						var poemSprite:String = SONG.song.toLowerCase().endsWith('-alt') ? 'images/notepad/picohandoatlas' : SONG.song.toLowerCase().endsWith('-sorb') ? 'images/notepad/sorbhandoatlas': 'images/notepad/handoatlas';
 						poemVideo = new FlxAnimate(0, 0, Paths.getLibraryPath(poemSprite, 'doki'));
 						poemVideo.showPivot = false;
 						poemVideo.anim.addBySymbol('hando', 'lnf video');
@@ -2546,7 +2546,7 @@ class PlayState extends MusicBeatState
 					case 'you and me':
 						customstart();
 
-					case 'love n funkin' | 'love n funkin-alt':
+					case 'love n funkin' | 'love n funkin-alt'  | 'love n funkin-sorb':
 						customstart();
 
 					case 'constricted':
@@ -2569,7 +2569,7 @@ class PlayState extends MusicBeatState
 			{
 				switch (curSong.toLowerCase())
 				{
-					case 'dual demise' | 'your demise' | 'epiphany' | 'wilted' | 'you and me' | 'libitina' | 'takeover medley' | 'drinks on me' | 'our harmony' | 'love n funkin' | 'love n funkin-alt' | 'constricted':
+					case 'dual demise' | 'your demise' | 'epiphany' | 'wilted' | 'you and me' | 'libitina' | 'takeover medley' | 'drinks on me' | 'our harmony' | 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb' | 'constricted':
 						customstart();
 					default:
 						startCountdown();
@@ -2580,7 +2580,7 @@ class PlayState extends MusicBeatState
 		{
 			switch (curSong.toLowerCase())
 			{
-				case 'dual demise' | 'your demise' | 'epiphany' | 'wilted' | 'you and me' | 'libitina' | 'takeover medley' | 'drinks on me' | 'our harmony' | 'love n funkin' | 'love n funkin-alt' | 'constricted':
+				case 'dual demise' | 'your demise' | 'epiphany' | 'wilted' | 'you and me' | 'libitina' | 'takeover medley' | 'drinks on me' | 'our harmony' | 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb' | 'constricted':
 					customstart();
 				default:
 					startCountdown();
@@ -2686,7 +2686,7 @@ class PlayState extends MusicBeatState
 				}
 				else
 					startCountdown();
-			case 'love n funkin' | 'love n funkin-alt':
+			case 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb':
 				boyfriend.x += 230;
 				gf.x += 85;
 				gf.y += 320;
@@ -3386,7 +3386,7 @@ class PlayState extends MusicBeatState
 				add(catpopup);
 			case 'wilted':
 				wiltswap(0, true);
-			case 'love n funkin' | 'love n funkin-alt' | 'constricted':
+			case 'love n funkin' | 'love n funkin-alt' | 'constricted' | 'love n funkin-sorb':
 				if (blackScreen != null)
 					FlxTween.tween(blackScreen, {alpha: 0.001}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineOut});
 		}
@@ -4500,7 +4500,7 @@ class PlayState extends MusicBeatState
 
 				if (dad.animation.curAnim.name.startsWith('lastNOTE'))
 					dad.animation.curAnim.frameRate = 24 * timescale;
-			case 'love n funkin' | 'love n funkin-alt':
+			case 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb':
 				poemVideo.anim.framerate = 24 * timescale;
 		}
 
@@ -7277,7 +7277,7 @@ class PlayState extends MusicBeatState
 							FlxTween.tween(camFollow, {y: -3404, x: 589}, 5, {ease: FlxEase.linear});
 							FlxTween.tween(camHUD, {alpha: 0}, 2, {ease: FlxEase.sineOut});
 					}
-				case 'love n funkin' | 'love n funkin-alt':
+				case 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb':
 					// Jorge please don't kill me ~M&M
 					switch (curStep)
 					{
@@ -7307,8 +7307,17 @@ class PlayState extends MusicBeatState
 							poemVideo.anim.play('hando', true);
 							poemVideo.alpha = 1;
 							sideWindow.alpha = 1;
+							if(SONG.song.toLowerCase().endsWith('-sorb')){
+								extrachar2.setPosition(-450, 0);
+							}
 						case 504:
-							FlxTween.tween(extrachar2, {x: -extrachar2.width * 1.5}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineInOut});
+							// if(SONG.song.toLowerCase().endsWith('-sorb')){
+								FlxTween.tween(extrachar2, {x: (-extrachar2.width * 1.5), y: 300}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineInOut});
+							
+							// } else {
+								// FlxTween.tween(extrachar2, {x: -extrachar2.width * 1.5, y: 300}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineInOut});
+							
+							// }
 						case 508:
 							FlxTween.cancelTweensOf(extrachar2);
 							remove(extrachar2);
@@ -7338,7 +7347,12 @@ class PlayState extends MusicBeatState
 							gf.updateHitbox();
 							gf.cameras = [camGame2];
 							gf.dance();
-							FlxTween.tween(gf, {x: -75}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineInOut});
+							if(SONG.song.toLowerCase().endsWith('-sorb')){
+								gf.scale.set(0.8,0.8);
+								FlxTween.tween(gf, {x: -200, y: 100}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineInOut});
+							} else {
+								FlxTween.tween(gf, {x: -75}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineInOut});
+							}
 						case 640:
 							remove(gf);
 							insert(Std.int(dokiData[6]), gf);
