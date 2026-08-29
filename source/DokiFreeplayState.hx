@@ -449,7 +449,7 @@ class DokiFreeplayState extends MusicBeatState
 
 		super.update(elapsed);
 	}
-
+	var lesorbSongs:Array<String> = ["love n funkin", "joyride"];
 	function selectSong()
 	{
 		if (diffselect && multiDiff.contains(songs[curSelected].songName.toLowerCase()))
@@ -460,7 +460,11 @@ class DokiFreeplayState extends MusicBeatState
 			startsong();
 			return;
 		}
-
+		
+		if(FlxG.keys.pressed.ALT && lesorbSongs.contains(songs[curSelected].songName.toLowerCase())){
+			startsongalt();
+			return;
+		}
 		if (multiDiff.contains(songs[curSelected].songName.toLowerCase()))
 		{
 			switch (songs[curSelected].songName.toLowerCase())
@@ -471,8 +475,8 @@ class DokiFreeplayState extends MusicBeatState
 					diff.visible = true;
 					diffselect = true;
 				case 'baka' | 'shrinking violet' | 'love n funkin' | 'dual demise':
-					if(FlxG.keys.pressed.ALT && songs[curSelected].songName.toLowerCase() == "love n funkin"){
-						startsongalt();
+					if(FlxG.keys.pressed.ALT && lesorbSongs.contains(songs[curSelected].songName.toLowerCase())){
+						return;
 					} else {
 						FlxG.sound.play(Paths.sound('confirmMenu'));
 						diffType = 1;
@@ -480,7 +484,8 @@ class DokiFreeplayState extends MusicBeatState
 						diffselect = true;
 					}
 				default:
-					startsong();
+						startsong();
+					
 			}
 		}
 		else
@@ -586,6 +591,11 @@ class DokiFreeplayState extends MusicBeatState
 					LoadingState.loadAndSwitchState(new PlayState());
 			
 		} else 
+		if (songs[curSelected].songName.toLowerCase() == "joyride" && sorb == true){
+					PlayState.SONG = Song.loadFromJson("joyride-sorb", "joyride-sorb");
+					PlayState.storyDifficulty = 1;
+					LoadingState.loadAndSwitchState(new PlayState());
+		} else
 		{
 				
 				var poop:String = Highscore.formatSong(songs[curSelected].songName + diffsuffix, curDifficulty);

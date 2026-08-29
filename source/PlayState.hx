@@ -2537,7 +2537,7 @@ class PlayState extends MusicBeatState
 					case 'shrinking violet' | 'shrinking violet-alt':
 						customstart();
 
-					case 'joyride':
+					case 'joyride', 'joyride-sorb':
 						customstart();
 
 					case 'our harmony':
@@ -2658,7 +2658,7 @@ class PlayState extends MusicBeatState
 
 		switch (curSong.toLowerCase())
 		{
-			case 'hot air balloon' | 'shrinking violet' | 'shrinking violet-alt' | 'joyride':
+			case 'hot air balloon' | 'shrinking violet' | 'shrinking violet-alt' | 'joyride' | 'joyride-sorb':
 				whiteflash.makeGraphic(FlxG.width * 3, FlxG.height * 3, 0xFFFDC1FF);
 				if (isStoryMode && showCutscene)
 				{
@@ -3373,7 +3373,7 @@ class PlayState extends MusicBeatState
 
 		switch (curSong.toLowerCase())
 		{
-			case 'hot air balloon' | 'shrinking violet' | 'shrinking violet-alt' | 'joyride':
+			case 'hot air balloon' | 'shrinking violet' | 'shrinking violet-alt' | 'joyride' | 'joyride-sorb':
 				dad.alpha = 1;
 			case 'catfight':
 				var who:String;
@@ -6783,7 +6783,7 @@ class PlayState extends MusicBeatState
 							whiteflash.alpha = 0.01;
 							FlxTween.tween(whiteflash, {alpha: 1}, CoolUtil.calcSectionLength(0.7), {ease: FlxEase.sineOut});
 					}
-				case 'joyride':
+				case 'joyride' | 'joyride-sorb':
 					switch (curStep)
 					{
 						case 126:
