@@ -1,0 +1,77 @@
+{
+	"animations": [
+		{
+			"loop": false,
+			"offsets": [192, 200],
+			"anim": "singRIGHT",
+			"fps": 24,
+			"name": "right",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [185, 199],
+			"anim": "singLEFT",
+			"fps": 24,
+			"name": "left",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [184, 197],
+			"anim": "singUP",
+			"fps": 24,
+			"name": "up",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [180, 200],
+			"anim": "singDOWN",
+			"fps": 24,
+			"name": "down",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [200, 200],
+			"anim": "idle",
+			"fps": 12,
+			"name": "lastNOTE_retry",
+			"indices": []
+		},		{
+			"loop": false,
+			"offsets": [200, 200],
+			"anim": "idle",
+			"fps": 12,
+			"name": "lastNOTE_start",
+			"indices": []
+		},		{
+			"loop": false,
+			"offsets": [200, 200],
+			"anim": "idle",
+			"fps": 12,
+			"name": "lastNOTE_end",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [200, 200],
+			"anim": "idle",
+			"fps": 12,
+			"name": "idle",
+			"indices": []
+		}
+	],
+	"vocals_file": "",
+	"no_antialiasing": false,
+	"image": "characters/sorbetlover/ralucacloserv2",
+	"position": [0, 0],
+	"healthicon": "raloca",
+	"flip_x": false,
+	"healthbar_colors": [49, 176, 209],
+	"camera_position": [0, 0],
+	"sing_duration": 8,
+	"scale": 1.2,
+	"_editor_isPlayer": false
+}

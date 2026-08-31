@@ -2856,16 +2856,21 @@ class PlayState extends MusicBeatState
 				add(blackScreen);
 				blackScreen.alpha = 0.0001;
 				startCountdown();
-			case 'epiphany':
-			///// B EPIPHANY
-				if (storyDifficulty == 1)
-					addcharacter("bigmonika-b", 1);
-			///// end of b epiphany
-				if (storyDifficulty == 2)
-					addcharacter("bigmonika-dress", 1);
-				else
-					lyrics.visible = false;
-
+			case 'epiphany', 'b-epiphany-sorb':
+				if(curSong.toLowerCase() == "b-epiphany-sorb"){
+							addcharacter("bigraluca", 1);
+							remove(boyfriend);
+				} else {
+					///// B EPIPHANY
+						if (storyDifficulty == 1)
+							addcharacter("bigmonika-b", 1);
+					///// end of b epiphany
+						if (storyDifficulty == 2)
+							addcharacter("bigmonika-dress", 1);
+						else
+							lyrics.visible = false;
+				}
+				
 				dad.cameras = [camGame2];
 
 				remove(gf);
@@ -4495,7 +4500,7 @@ class PlayState extends MusicBeatState
 			case 'deep breaths':
 				if (dad.animation.curAnim.name == 'breath')
 					dad.animation.curAnim.frameRate = 24 * timescale;
-			case 'epiphany':
+			case 'epiphany', 'b-epiphany-sorb':
 				popup.animation.curAnim.frameRate = 24 * timescale;
 
 				if (dad.animation.curAnim.name.startsWith('lastNOTE'))
@@ -8039,7 +8044,7 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (curSong.toLowerCase() == 'epiphany')
+			if (curSong.toLowerCase() == 'epiphany' || curSong.toLowerCase() == 'b-epiphany-sorb')
 			{
 				switch (curBeat)
 				{
@@ -8087,24 +8092,31 @@ class PlayState extends MusicBeatState
 						popup.alpha = 1;
 						popup.animation.play('idle', true);
 					case 776:
-						dad.playAnim('lastNOTE_start');
-						dad.specialAnim = true;
+						if(curSong.toLowerCase() != "b-epiphany-sorb" || dad.curCharacter != "bigraluca"){
+							dad.playAnim('lastNOTE_start');
+							dad.specialAnim = true;
+						}
 					case 780:
-						if (storyDifficulty != 2)
+						if (storyDifficulty != 2 || curSong.toLowerCase() != "b-epiphany-sorb" || dad.curCharacter != "bigraluca")
 						{
-							if (SaveData.beatEpiphany)
+							if (SaveData.beatEpiphany && dad.curCharacter == "bigmonika")
 								dad.playAnim('lastNOTE_retry');
 							else
 								dad.playAnim('lastNOTE_end');
 						}
 						dad.specialAnim = true;
 					case 783:
-						if (storyDifficulty == 2)
+						if (storyDifficulty == 2 || curSong.toLowerCase() != "b-epiphany-sorb"|| dad.curCharacter != "bigraluca")
 						{
-							dad.playAnim('lastNOTE_end');
-							dad.specialAnim = true;
+							if(dad.curCharacter == "bigmonika"){
+								dad.specialAnim = true;
+								dad.playAnim('lastNOTE_end');
+							} 
 						}
-					case 785:
+					case 787:
+						if(curSong.toLowerCase() == "b-epiphany-sorb" || dad.curCharacter == "bigraluca"){
+							FlxTween.tween(dad, {angle: 360, "scale.x": 0, alpha:0}, CoolUtil.calcSectionLength(), {ease:FlxEase.elasticIn});
+						}
 						epipEnding = true;
 					case 788:
 						FlxTween.tween(iconP2, {alpha: 0}, CoolUtil.calcSectionLength(0.25), {ease: FlxEase.sineOut});

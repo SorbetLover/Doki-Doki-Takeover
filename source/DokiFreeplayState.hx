@@ -449,7 +449,7 @@ class DokiFreeplayState extends MusicBeatState
 
 		super.update(elapsed);
 	}
-	var lesorbSongs:Array<String> = ["love n funkin", "joyride"];
+	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany"];
 	function selectSong()
 	{
 		if (diffselect && multiDiff.contains(songs[curSelected].songName.toLowerCase()))
@@ -578,9 +578,16 @@ class DokiFreeplayState extends MusicBeatState
 	function loadSong(isCharting:Bool = false, sorb:Bool = false)
 	{	
 		if(curPage == 3 && curSelected == 1){
+			if(sorb == true || FlxG.keys.pressed.ALT){
+					PlayState.SONG = Song.loadFromJson("b-epiphany-sorb", "b-epiphany-sorb");
+					PlayState.storyDifficulty = curDifficulty;
+					LoadingState.loadAndSwitchState(new PlayState());
+			} else {
 					PlayState.SONG = Song.loadFromJson("epiphany-easy", "epiphany");
 					PlayState.storyDifficulty = curDifficulty;
 					LoadingState.loadAndSwitchState(new PlayState());
+			}
+
 
 		} else 
 		if (songs[curSelected].songName.toLowerCase() == "love n funkin" && sorb == true) 
