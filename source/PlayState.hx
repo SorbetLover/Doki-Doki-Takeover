@@ -9057,7 +9057,7 @@ var whrilmoving:Bool = false;
 function otherUpdate(elapsed:Float):Void{
 	switch(curSong.toLowerCase()){
 		case "bara no yume": whrilUpdate(elapsed);
-		case "metamorphosis": metaupdate(elapsed);
+		case "metamorphosis", "down-bad": metaupdate(elapsed);
 	}
 
 	if(FlxG.keys.justPressed.ONE){
@@ -9071,7 +9071,7 @@ function otherUpdate(elapsed:Float):Void{
 function anotherStepHit():Void {
 	switch(curSong.toLowerCase()){
 		case "bara no yume": bnyStepHit(curStep);
-		case "metamorphosis": metStepHit(curStep);
+		case "metamorphosis", "down-bad": metStepHit(curStep);
 	}
 }
 //// objs shit
@@ -9148,16 +9148,29 @@ function bnyStepHit(curStep:Int):Void {
 
 
 function metStepHit(curStep):Void {
-	if(curStep <= 127 || curStep >= 896){
-		camHUD.visible = false;
-	} else {
-		camHUD.visible = true;
+	if(curSong.toLowerCase() == "metamorphosis"){
+		if(curStep <= 127 || curStep >= 896){
+			camHUD.visible = false;
+		} else {
+			camHUD.visible = true;
+		}
+	} else if(curSong.toLowerCase() == "down-bad"){
+		if(curStep <= 255 || curStep >= 1792){
+			camHUD.visible = false;
+		} else {
+			camHUD.visible = true;
+		}
 	}
 }
 function metaupdate(elapsed):Void{
-	if(curStep <= 127 || curStep >= 896){
-		// camFollow.setPosition(dad.x + opponentCameraOffset[0], dad.y + opponentCameraOffset[1]);
+	if(curSong.toLowerCase() == "metamorphosis"){
+		if(curStep <= 127 || curStep >= 896){
 			moveCamera("dad");
+		}
+	} else if(curSong.toLowerCase() == "down-bad"){
+		if(curStep <= 255 || curStep >= 1792){
+			moveCamera("dad");
+		}
 	}
 }
 function postCreate(){
@@ -9172,6 +9185,9 @@ function postCreate(){
 	brightness.cameras = [camHUD];
 	if(curSong == "b-epiphany"){
 		remove(boyfriend);
+	}
+	if(curSong.toLowerCase() == "metamorphosis" || curSong.toLowerCase() == "down-bad"){
+		remove(gf);
 	}
 }
 

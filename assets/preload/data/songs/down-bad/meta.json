@@ -1,0 +1,10 @@
+{
+    "song": {
+        "name": "Down Bad",
+        "artist": "Foodieti",
+        "icon": "pen",
+        "pause": "yuri",
+        "introDialogue": "IntroDialogue",
+        "endDialogue": "EndDialogue"
+    }
+}
