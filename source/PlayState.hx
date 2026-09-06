@@ -466,6 +466,8 @@ class PlayState extends MusicBeatState
 	var whril:WhrilShader;
 	var whrilVars:Array<Float> = [1,1,1,1];
 
+	var brightness:FlxSprite;
+
 	/// end of sorbetlover modding things
 	override public function create()
 	{
@@ -2608,6 +2610,8 @@ class PlayState extends MusicBeatState
 		// trace(curSong + "\n" + curSong.toLowerCase());
 		// scoreTxt.text = (curSong.toLowerCase());
 		Paths.clearUnusedMemory();
+
+		postCreate();
 	}
 	//end of create
 
@@ -2643,6 +2647,7 @@ class PlayState extends MusicBeatState
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 		FlxG.mouse.visible = true;
+		FlxG.save.data.leescurecimento = brightness.alpha;
 		super.destroy();
 	}
 
@@ -2856,15 +2861,15 @@ class PlayState extends MusicBeatState
 				add(blackScreen);
 				blackScreen.alpha = 0.0001;
 				startCountdown();
-			case 'epiphany', 'b-epiphany-sorb':
+			case 'epiphany', 'b-epiphany-sorb', 'b-epiphany':
+				remove(boyfriend);
 				if(curSong.toLowerCase() == "b-epiphany-sorb"){
 							addcharacter("bigraluca", 1);
-							remove(boyfriend);
 				} else {
 					///// B EPIPHANY
-						if (storyDifficulty == 1)
-							addcharacter("bigmonika-b", 1);
-					///// end of b epiphany
+						// if (storyDifficulty == 1)
+					// 		addcharacter("bigmonika-b", 1);
+					// ///// end of b epiphany
 						if (storyDifficulty == 2)
 							addcharacter("bigmonika-dress", 1);
 						else
@@ -2872,6 +2877,7 @@ class PlayState extends MusicBeatState
 				}
 				
 				dad.cameras = [camGame2];
+				remove(boyfriend);
 
 				remove(gf);
 				remove(boyfriend);
@@ -2894,6 +2900,7 @@ class PlayState extends MusicBeatState
 				}
 				else
 					startCountdown();
+				remove(boyfriend);
 			default:
 				startCountdown();
 		}
@@ -3717,9 +3724,9 @@ class PlayState extends MusicBeatState
 		if (curSong.toLowerCase() == 'epiphany' && storyDifficulty == 2){
 			changeVocalTrack('', '_Lyrics');
 		}
-		if (curSong.toLowerCase() == 'epiphany' && storyDifficulty == 1){
-			changeVocalTrack('', '_Bside');
-		}
+		// if (curSong.toLowerCase() == 'epiphany' && storyDifficulty == 1){
+		// 	changeVocalTrack('', '_Bside');
+		// }
 
 		if (paused)
 		{
@@ -4500,7 +4507,7 @@ class PlayState extends MusicBeatState
 			case 'deep breaths':
 				if (dad.animation.curAnim.name == 'breath')
 					dad.animation.curAnim.frameRate = 24 * timescale;
-			case 'epiphany', 'b-epiphany-sorb':
+			case 'epiphany', 'b-epiphany-sorb', 'b-epiphany':
 				popup.animation.curAnim.frameRate = 24 * timescale;
 
 				if (dad.animation.curAnim.name.startsWith('lastNOTE'))
@@ -7861,7 +7868,9 @@ class PlayState extends MusicBeatState
 						// Hi Tioder :)
 						// Set colors to an array
 						var dokiLights:Array<Int> = [0xff95E0FA, 0xff8CD465, 0xffFC95D3, 0xff9E72D2];
-	
+						if(curSong.toLowerCase() == "joyride-sorb"){
+							dokiLights = [0xFF00c3ff, 0xFFfff261, 0xFFff3bff, 0xFFff890a, 0xFFff1f69];
+						}
 						// Randomize the colors, while excluding whatever was the past light
 						// so as not to repeat the same color
 						curDokiLight = FlxG.random.int(0, dokiLights.length - 1, [pastDokiLight]);
@@ -8044,7 +8053,7 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (curSong.toLowerCase() == 'epiphany' || curSong.toLowerCase() == 'b-epiphany-sorb')
+			if (curSong.toLowerCase() == 'epiphany' || curSong.toLowerCase() == 'b-epiphany-sorb' || curSong.toLowerCase() == 'b-epiphany')
 			{
 				switch (curBeat)
 				{
@@ -9048,11 +9057,21 @@ var whrilmoving:Bool = false;
 function otherUpdate(elapsed:Float):Void{
 	switch(curSong.toLowerCase()){
 		case "bara no yume": whrilUpdate(elapsed);
+		case "metamorphosis": metaupdate(elapsed);
 	}
+
+	if(FlxG.keys.justPressed.ONE){
+		brightness.alpha += 0.1;
+	}
+	if(FlxG.keys.justPressed.TWO){
+		brightness.alpha -= 0.1;
+	}
+	// scoreTxt.text = Std.string(storyDifficulty);
 }
 function anotherStepHit():Void {
 	switch(curSong.toLowerCase()){
 		case "bara no yume": bnyStepHit(curStep);
+		case "metamorphosis": metStepHit(curStep);
 	}
 }
 //// objs shit
@@ -9124,6 +9143,35 @@ function bnyStepHit(curStep:Int):Void {
 			gf.visible = false;
 			boyfriend.visible = false;
 			
+	}
+}
+
+
+function metStepHit(curStep):Void {
+	if(curStep <= 127 || curStep >= 896){
+		camHUD.visible = false;
+	} else {
+		camHUD.visible = true;
+	}
+}
+function metaupdate(elapsed):Void{
+	if(curStep <= 127 || curStep >= 896){
+		// camFollow.setPosition(dad.x + opponentCameraOffset[0], dad.y + opponentCameraOffset[1]);
+			moveCamera("dad");
+	}
+}
+function postCreate(){
+	if(FlxG.save.data.leescurecimento == null){
+		FlxG.save.data.leescurecimento = 0;
+	}
+	brightness = new FlxSprite().makeGraphic(1,1,0xFF000000);
+	brightness.scale.set(FlxG.width * 2, FlxG.height * 2);
+	insert(200, brightness);
+	brightness.screenCenter();
+	brightness.alpha = FlxG.save.data.leescurecimento;
+	brightness.cameras = [camHUD];
+	if(curSong == "b-epiphany"){
+		remove(boyfriend);
 	}
 }
 

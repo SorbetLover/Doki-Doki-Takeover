@@ -1,0 +1,13 @@
+{
+    "song": {
+        "name": "B-Epiphany",
+        "artist": "Matt$",
+		"artist_encore": "Matt$, Juno Songs, Carimelle",
+        "icon": "pen",
+        "pause": "b-epiphany",
+        "freeplayDialogue": true,
+        "introDialogue": "IntroDialogue",
+        "introDialogueBeat": "EncoreDialogue",
+        "introDialogueAlt": "LyricDialogue"
+    }
+}

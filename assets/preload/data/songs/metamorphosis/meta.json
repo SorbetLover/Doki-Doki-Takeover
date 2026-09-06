@@ -1,0 +1,10 @@
+{
+    "song": {
+        "name": "Metamorphosis",
+        "artist": "Foodieti",
+        "icon": "pen",
+        "pause": "yuri",
+        "introDialogue": "IntroDialogue",
+        "endDialogue": "EndDialogue"
+    }
+}

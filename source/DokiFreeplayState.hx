@@ -79,6 +79,8 @@ class DokiFreeplayState extends MusicBeatState
 		'love n funkin',
 		'dual demise'
 	];
+	//// LSS
+	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany"];
 
 	public static function loadDiff(diff:Int, name:String, array:Array<SwagSong>)
 	{
@@ -241,7 +243,11 @@ class DokiFreeplayState extends MusicBeatState
 			songText.setFormat(Paths.font("Halogen.otf"), 29, FlxColor.BLACK, FlxTextAlign.LEFT);
 			songText.antialiasing = SaveData.globalAntialiasing;
 			songText.borderStyle = OUTLINE;
-			songText.borderColor = 0xFFFF7FEE;
+			if(lesorbSongs.contains(songs[i].songName.toLowerCase())){
+				songText.borderColor = 0xFFbe45ff;
+			} else {
+				songText.borderColor = 0xFFFF7FEE;
+			}
 			songText.ID = i;
 			grpSongs.add(songText);
 
@@ -449,7 +455,6 @@ class DokiFreeplayState extends MusicBeatState
 
 		super.update(elapsed);
 	}
-	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany"];
 	function selectSong()
 	{
 		if (diffselect && multiDiff.contains(songs[curSelected].songName.toLowerCase()))
@@ -462,7 +467,8 @@ class DokiFreeplayState extends MusicBeatState
 		}
 		
 		if(FlxG.keys.pressed.ALT && lesorbSongs.contains(songs[curSelected].songName.toLowerCase())){
-			startsongalt();
+			startsong(true);
+			FlxG.fullscreen = false;
 			return;
 		}
 		if (multiDiff.contains(songs[curSelected].songName.toLowerCase()))
@@ -498,8 +504,16 @@ class DokiFreeplayState extends MusicBeatState
 		}
 	}
 
-	public function startsong()
+	public function startsong(issorb:Bool = false)
 	{
+		switch(songs[curSelected].songName.toLowerCase()){
+			case "joyride":
+				iconArray[curSelected].changeIcon("abby");
+			case "dual demise":
+				if(diffsuffix == "-alt"){
+					iconArray[curSelected].changeIcon("dual-demise-old");
+				}
+		}
 		pageFlipped = false;
 		selectedSomethin = true;
 		FlxG.sound.play(Paths.sound('confirmMenu'));
@@ -523,72 +537,71 @@ class DokiFreeplayState extends MusicBeatState
 				{
 					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
 					{
-						loadSong();
+						loadSong(false, issorb);
 					});
 				}
 				else
 				{
 					new FlxTimer().start(1, function(tmr:FlxTimer)
 					{
-						loadSong();
+						loadSong(false, issorb);
 					});
 				}
 			}
 		});
 	}
-	public function startsongalt()
-	{
-		pageFlipped = false;
-		selectedSomethin = true;
-		FlxG.sound.play(Paths.sound('confirmMenu'));
-		menu_character.y -= 31;
-		menu_character.animation.play('pop_off');
-		grpSongs.forEach(function(spr:FlxSprite)
-		{
-			if (curSelected != spr.ID)
-			{
-				FlxTween.tween(spr, {alpha: 0}, 1.3, {
-					ease: FlxEase.quadOut,
-					onComplete: function(twn:FlxTween)
-					{
-						spr.kill();
-					}
-				});
-			}
-			else
-			{
-				if (SaveData.flashing)
-				{
-					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
-					{
-						loadSong(false, true);
-					});
-				}
-				else
-				{
-					new FlxTimer().start(1, function(tmr:FlxTimer)
-					{
-						loadSong(false, true);
-					});
-				}
-			}
-		});
-	}
+	// public function startsongalt()
+	// {
+	// 	pageFlipped = false;
+	// 	selectedSomethin = true;
+	// 	FlxG.sound.play(Paths.sound('confirmMenu'));
+	// 	menu_character.y -= 31;
+	// 	menu_character.animation.play('pop_off');
+	// 	grpSongs.forEach(function(spr:FlxSprite)
+	// 	{
+	// 		if (curSelected != spr.ID)
+	// 		{
+	// 			FlxTween.tween(spr, {alpha: 0}, 1.3, {
+	// 				ease: FlxEase.quadOut,
+	// 				onComplete: function(twn:FlxTween)
+	// 				{
+	// 					spr.kill();
+	// 				}
+	// 			});
+	// 		}
+	// 		else
+	// 		{
+	// 			if (SaveData.flashing)
+	// 			{
+	// 				FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+	// 				{
+	// 					loadSong(false, true);
+	// 				});
+	// 			}
+	// 			else
+	// 			{
+	// 				new FlxTimer().start(1, function(tmr:FlxTimer)
+	// 				{
+	// 					loadSong(false, true);
+	// 				});
+	// 			}
+	// 		}
+	// 	});
+	// }
 
 	function loadSong(isCharting:Bool = false, sorb:Bool = false)
 	{	
-		if(curPage == 3 && curSelected == 1){
-			if(sorb == true || FlxG.keys.pressed.ALT){
+		if(curPage == 3 && curSelected == 1 && sorb == true){
+			// if(sorb == true || FlxG.keys.pressed.ALT){
 					PlayState.SONG = Song.loadFromJson("b-epiphany-sorb", "b-epiphany-sorb");
 					PlayState.storyDifficulty = curDifficulty;
 					LoadingState.loadAndSwitchState(new PlayState());
-			} else {
-					PlayState.SONG = Song.loadFromJson("epiphany-easy", "epiphany");
-					PlayState.storyDifficulty = curDifficulty;
-					LoadingState.loadAndSwitchState(new PlayState());
-			}
-
-
+			// } 
+			// else {
+			// 		PlayState.SONG = Song.loadFromJson("epiphany-easy", "epiphany");
+			// 		PlayState.storyDifficulty = curDifficulty;
+			// 		LoadingState.loadAndSwitchState(new PlayState());
+			// }
 		} else 
 		if (songs[curSelected].songName.toLowerCase() == "love n funkin" && sorb == true) 
 		{
@@ -734,7 +747,11 @@ class DokiFreeplayState extends MusicBeatState
 			if (item.ID != curSelected)
 				item.setBorderStyle(OUTLINE, 0x00FF7FEE, 1, 1);
 			else
-				item.setBorderStyle(OUTLINE, 0xFFFF7FEE, 1, 1);
+				if(lesorbSongs.contains(item.text.toLowerCase()) || item.text.toLowerCase() == "love n' funkin'"){
+					item.setBorderStyle(OUTLINE, 0xFFbe45ff, 1, 1);
+				} else {
+					item.setBorderStyle(OUTLINE, 0xFFFF7FEE, 1, 1);
+				}
 		}
 	}
 
@@ -829,10 +846,10 @@ class DokiFreeplayState extends MusicBeatState
 		}
 		else
 		{
-			if (curPage >= 5)
+			if (curPage >= 6)
 				curPage = 0;
 			if (curPage < 0)
-				curPage = 5 - 1;
+				curPage = 6 - 1;
 		}
 		// updating page stuff here
 	}
