@@ -2210,8 +2210,8 @@ class PlayState extends MusicBeatState
 
 				if (!SaveData.lowEnd)
 				{
-					bloomlol = new BloomShader(0.1, 0.005, 0.8, 7.0);
-					camGame.filters = [new ShaderFilter(glitchy), new ShaderFilter(bloomlol)];
+					if(SaveData.shaders) bloomlol = new BloomShader(0.1, 0.005, 0.8, 7.0);
+					if(SaveData.shaders) camGame.filters = [new ShaderFilter(glitchy), new ShaderFilter(bloomlol)];
 				}
 				else
 				{
@@ -2223,14 +2223,17 @@ class PlayState extends MusicBeatState
 			{
 				if (curStage == 'dokifestival')
 				{
-					bloomlol = new BloomShader(0.1, 0.005, 0.8, 7.0);
-					camGame.filters = [new ShaderFilter(bloomlol)];
+					if(SaveData.shaders) bloomlol = new BloomShader(0.1, 0.005, 0.8, 7.0);
+					if(SaveData.shaders) camGame.filters = [new ShaderFilter(bloomlol)];
 				}
 
 				if (curStage == 'clubroomevil')
 				{
-					bloomlol = new BloomShader(0.1, 0.005, 0.95, 8.0);
-					camGame.filters = [new ShaderFilter(bloomlol)];
+					if(SaveData.shaders){
+						bloomlol = new BloomShader(0.1, 0.005, 0.95, 8.0);
+						camGame.filters = [new ShaderFilter(bloomlol)];
+
+					}
 				}
 			}
 		}
@@ -2571,7 +2574,7 @@ class PlayState extends MusicBeatState
 			{
 				switch (curSong.toLowerCase())
 				{
-					case 'dual demise' | 'your demise' | 'epiphany' | 'wilted' | 'you and me' | 'libitina' | 'takeover medley' | 'drinks on me' | 'our harmony' | 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb' | 'constricted':
+					case 'dual demise' | 'your demise' | 'epiphany' | 'wilted' | 'you and me' | 'libitina' | 'takeover medley' | 'drinks on me' | 'our harmony' | 'love n funkin' | 'love n funkin-alt' | 'love n funkin-sorb' | 'constricted' | 'dual demise-sorb':
 						customstart();
 					default:
 						startCountdown();
@@ -2856,6 +2859,9 @@ class PlayState extends MusicBeatState
 				}
 			case 'dual demise':
 				iconP2.changeIcon('dual-demise');
+				startCountdown();
+			case 'dual demise-sorb':
+				iconP2.changeIcon('dual-demise-sorb');
 				startCountdown();
 			case 'your demise':
 				add(blackScreen);
@@ -8572,7 +8578,7 @@ class PlayState extends MusicBeatState
 	function gopixel()
 	{
 		//camGame.filtersEnabled = false;
-		bloomlol.data.funthreshhold.value = [1.0];
+		if(SaveData.shaders) bloomlol.data.funthreshhold.value = [1.0];
 		isPixelUI = true;
 		defaultCamZoom = 1.05;
 
@@ -8631,7 +8637,7 @@ class PlayState extends MusicBeatState
 	function becomefumo()
 	{
 		//camGame.filtersEnabled = true;
-		bloomlol.data.funthreshhold.value = [0.8];
+		if(SaveData.shaders) bloomlol.data.funthreshhold.value = [0.8];
 		isPixelUI = false;
 
 		positionDisplay.songText.font = LangUtil.getFont();
@@ -9174,6 +9180,10 @@ function metaupdate(elapsed):Void{
 	}
 }
 function postCreate(){
+	switch(curSong.toLowerCase()){
+		case "dual demise-sorb":
+			iconP2.changeIcon("dual-demise-sorb");
+	}
 	if(FlxG.save.data.leescurecimento == null){
 		FlxG.save.data.leescurecimento = 0;
 	}

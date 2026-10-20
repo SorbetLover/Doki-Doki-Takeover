@@ -80,7 +80,7 @@ class DokiFreeplayState extends MusicBeatState
 		'dual demise'
 	];
 	//// LSS
-	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany"];
+	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany", "dual demise"];
 
 	public static function loadDiff(diff:Int, name:String, array:Array<SwagSong>)
 	{
@@ -471,6 +471,10 @@ class DokiFreeplayState extends MusicBeatState
 			FlxG.fullscreen = false;
 			return;
 		}
+		if(songs[curSelected].songName.toLowerCase() == "dual demise" && FlxG.keys.pressed.ALT){
+			startsong();
+			return;
+		}
 		if (multiDiff.contains(songs[curSelected].songName.toLowerCase()))
 		{
 			switch (songs[curSelected].songName.toLowerCase())
@@ -616,6 +620,11 @@ class DokiFreeplayState extends MusicBeatState
 					PlayState.storyDifficulty = 1;
 					LoadingState.loadAndSwitchState(new PlayState());
 		} else
+		if(songs[curSelected].songName.toLowerCase() == "dual demise" && sorb == true){
+			PlayState.SONG = Song.loadFromJson("dual demise-sorb", "dual demise-sorb");
+			PlayState.storyDifficulty = 1;
+			LoadingState.loadAndSwitchState(new PlayState());
+		} else 
 		{
 				
 				var poop:String = Highscore.formatSong(songs[curSelected].songName + diffsuffix, curDifficulty);
