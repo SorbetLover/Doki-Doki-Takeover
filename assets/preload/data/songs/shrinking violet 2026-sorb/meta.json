@@ -1,0 +1,10 @@
+{
+    "song": {
+        "name": "Shrinking Violet 2026",
+        "artist": "HighPoweredKeyz & DatDavi / DemonFF",
+        "icon": "pen",
+        "pause": "yuri",
+        "introDialogue": "IntroDialogue",
+        "endDialogue": "EndDialogue"
+    }
+}

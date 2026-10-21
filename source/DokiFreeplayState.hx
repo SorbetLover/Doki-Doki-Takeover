@@ -80,7 +80,7 @@ class DokiFreeplayState extends MusicBeatState
 		'dual demise'
 	];
 	//// LSS
-	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany", "dual demise"];
+	var lesorbSongs:Array<String> = ["love n funkin", "joyride", "b-epiphany", "dual demise", "shrinking violet 2026"];
 
 	public static function loadDiff(diff:Int, name:String, array:Array<SwagSong>)
 	{
@@ -622,6 +622,11 @@ class DokiFreeplayState extends MusicBeatState
 		} else
 		if(songs[curSelected].songName.toLowerCase() == "dual demise" && sorb == true){
 			PlayState.SONG = Song.loadFromJson("dual demise-sorb", "dual demise-sorb");
+			PlayState.storyDifficulty = 1;
+			LoadingState.loadAndSwitchState(new PlayState());
+		} else 
+		if(songs[curSelected].songName.toLowerCase() == "shrinking violet 2026" && sorb == true){
+			PlayState.SONG = Song.loadFromJson("shrinking violet 2026-sorb", "shrinking violet 2026-sorb");
 			PlayState.storyDifficulty = 1;
 			LoadingState.loadAndSwitchState(new PlayState());
 		} else 
