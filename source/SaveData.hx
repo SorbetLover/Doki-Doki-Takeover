@@ -1,5 +1,6 @@
 import flixel.FlxG;
 import flixel.util.FlxSave;
+import flixel.input.keyboard.FlxKey;   
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 #end
@@ -130,6 +131,10 @@ class SaveData
 	/// gambiarra
 	public static var leSongShit:Array<Dynamic> = [null,null,null]; 
 
+	///
+	public static var noteCamera:Float = 1;
+
+	///
 	private static var importantMap:Map<String, Array<String>> =
 	[
 		"flixelSound" => ["volume"]
@@ -138,6 +143,13 @@ class SaveData
 	/** Quick Function to Fix Save Files for Flixel 5
 		@BeastlyGabi
 	**/
+
+	// public static function getGameplaySetting(name:String, defv:Dynamic):Dynamic{
+	// 	switch(name.toLowerCase()){
+	// 		case "scrollspeed":
+				
+	// 	}
+	// }
 	inline public static function getSavePath(folder:String = 'TeamTBD'):String
 	{
 		@:privateAccess
@@ -415,5 +427,24 @@ class SaveData
 	inline public static function getTabiSave():Bool
 	{
 		return getFlixelSave('Homskiy', 'Tabi', 'homskiy', 'tabi') || getFlixelSave('Tabi Team', 'Tabi');
+	}
+	
+	public static function copyKey(arrayToCopy:Array<FlxKey>):Array<FlxKey>
+	{
+		var copiedArray:Array<FlxKey> = arrayToCopy.copy();
+		var i:Int = 0;
+		var len:Int = copiedArray.length;
+
+		while (i < len)
+		{
+			if (copiedArray[i] == NONE)
+			{
+				copiedArray.remove(NONE);
+				--i;
+			}
+			i++;
+			len = copiedArray.length;
+		}
+		return copiedArray;
 	}
 }

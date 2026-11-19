@@ -80,6 +80,8 @@ class Character extends FlxSprite
 	public var gameoverchara:String = 'gameover-generic';
 	public var gameovercharamirror:String = 'bf';
 	public var healthIcon:String = 'bf';
+	public var healthColorArray:Array<Int> = [255, 0, 0];
+
 	var hasCostume = false;
 	var json:CharacterFile;
 
@@ -90,6 +92,10 @@ class Character extends FlxSprite
 	// https://github.com/ThatRozebudDude/FPS-Plus-Public/pull/11
 	public var initFacing:Int = FlxObject.RIGHT;
 	var initWidth:Float;
+
+
+	public var heyTimer:Float = 0;
+	public var idleSuffix:String = '';
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false, ?forceCostume:String = '')
 	{
@@ -300,6 +306,23 @@ class Character extends FlxSprite
 	{
 		if (!debugMode)
 		{
+			if(heyTimer > 0)
+			{
+				heyTimer -= elapsed;
+				if(heyTimer <= 0)
+				{
+					if(specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
+					{
+						specialAnim = false;
+						dance();
+					}
+					heyTimer = 0;
+				}
+			} else if(specialAnim && animation.curAnim.finished)
+			{
+				specialAnim = false;
+				dance();
+			}
 			// HUGE SHOUTOUT TO HOLOFUNK DEV TEAM, I APPRECIATE THEM SO MUCH
 			if (!this.isPlayer)
 			{
@@ -359,6 +382,7 @@ class Character extends FlxSprite
 
 		if (!debugMode && !specialAnim)
 		{
+			altSuffix = idleSuffix;
 			if (altAnim)
 				altSuffix = '-alt';
 
@@ -378,6 +402,9 @@ class Character extends FlxSprite
 						playAnim('idle' + altSuffix);
 			}
 		}
+	}
+	public function recalculateDanceIdle() {
+		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
 	}
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void

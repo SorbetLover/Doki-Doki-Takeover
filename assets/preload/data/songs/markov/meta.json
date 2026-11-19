@@ -1,0 +1,10 @@
+{
+    "song": {
+        "name": "Markov",
+        "artist": "Sprunkle & Stardust Tunes / Foodieti",
+        "icon": "pen",
+        "pause": "yuri",
+        "introDialogue": "IntroDialogue",
+        "playManually": true
+    }
+}

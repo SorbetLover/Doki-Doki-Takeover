@@ -74,6 +74,9 @@ import GameJolt.GameJoltAPI;
 #if FEATURE_MP4
 import hxcodec.flixel.FlxVideoSprite as VideoSprite;
 #end
+import openfl.utils.Assets as OpenFlAssets;
+
+import shaders.ColorSwap;
 
 using StringTools;
 
@@ -286,7 +289,7 @@ class PlayState extends MusicBeatState
 	var bg:BGSprite;
 	var stageFront:BGSprite;
 	var treeLeaves:BGSprite;
-	var redStatic:BGSprite;
+	var redStatic:FlxSprite;
 	var evilbg:BGSprite;
 
 	var stageVER:Int = 0;
@@ -347,7 +350,7 @@ class PlayState extends MusicBeatState
 	var blackScreenBG:FlxSprite;
 	var blackScreentwo:FlxSprite;
 	var dokiBackdrop:FlxBackdrop;
-	var windowlight:BGSprite;
+	var windowlight:FlxSprite;
 	var lightontopofall:BGSprite;
 	var funnytext:FlxTypeText;
 	var happyEnding:Bool = false;
@@ -444,6 +447,8 @@ class PlayState extends MusicBeatState
 		SaveData.upBind,
 		SaveData.rightBind
 	];
+
+	private var grpUnderlay:FlxTypedGroup<FlxSprite>;
 
 	// API stuff
 	public function addObject(object:FlxBasic)
@@ -594,6 +599,7 @@ class PlayState extends MusicBeatState
 		updateDiscordPresence();
 		#end
 
+		preCreate();
 		camGame = new FlxCamera();
 		camGame2 = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -781,7 +787,8 @@ class PlayState extends MusicBeatState
 		}
 
 		preloadGroup = new FlxSpriteGroup(100, 100);
-
+		stageinits(SONG.song, curStage);
+		
 		switch (curStage)
 		{
 			case 'school':
@@ -4555,7 +4562,11 @@ class PlayState extends MusicBeatState
 				warpy.iTime.value = [iTime / 2];
 
 			if (staticlol != null)
+				if(SONG.song.toLowerCase() == "markov"){
+					staticlol.alpha.value = [staticAlpha];
+				} 
 				staticlol.iTime.value = [iTime];
+
 
 			if (staticlol2 != null)
 				staticlol2.iTime.value = [iTime];
@@ -6383,7 +6394,6 @@ class PlayState extends MusicBeatState
 
 	override function stepHit()
 	{	
-		anotherStepHit();
 		if (!startingSong && !endingSong && !inCutscene && !vocalsFinished)
 		{
 			var vocalOffset:Float = Math.abs(vocals.time - FlxG.sound.music.time);
@@ -6397,6 +6407,7 @@ class PlayState extends MusicBeatState
 		if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null && !endingSong && camFocus)
 			moveCameraSection(Std.int(curStep / 16));
 
+		anotherStepHit();
 		if (midsongcutscene)
 		{
 			switch (curSong.toLowerCase())
@@ -7803,7 +7814,7 @@ class PlayState extends MusicBeatState
 	override function beatHit()
 	{
 		super.beatHit();
-
+		anotherBeatHit();
 		if (generatedMusic)
 			notes.sort(FlxSort.byY, SaveData.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
@@ -8449,11 +8460,11 @@ class PlayState extends MusicBeatState
 	public var camNoteX:Float = 0;
 	public var camNoteY:Float = 0;
 
+	var camNoteExtend:Float = 15; // How powerful the camnote stuff is
 	private function noteCamera(focusedChar:Character, mustHit:Bool)
 	{
 		if (noteCam)
 		{
-			var camNoteExtend:Float = 15; // How powerful the camnote stuff is
 			if ((focusedChar == boyfriend && mustHit) || (focusedChar == dad && !mustHit))
 			{
 				camNoteX = 0;
@@ -9058,18 +9069,63 @@ l.,dkxkxl.       .l0XXXXXXXXKKXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXd
 ddxxxxxxxxddxxxxxdxdol;dNWW0l:llc'   .lXNklclldkOkkdlc.    'lddddddl;',,,,'.    'okkkko.  ;dkkkkkkkk
 */
 
+public function reloadHealthBarGraphic(?prefix:String = '', ?suffix:String = '', ?offsetX:Float = 0, ?offsetY:Float = 0)
+{
+	var path:String = prefix + 'healthBar' + suffix;
+	var gamePath:String = Paths.getPath('images/$path.png', IMAGE);
+
+	if (#if MODS_ALLOWED !FileSystem.exists(Paths.modsImages(path)) && #end !OpenFlAssets.exists(gamePath, IMAGE))
+		path = 'healthBar';
+
+	var xmlPath:String = 'images/' + path + '.xml';
+	var modpath = '';
+	var isAnimated = false;
+	#if MODS_ALLOWED
+	modpath = Paths.modFolders(xmlPath);
+	if (!FileSystem.exists(path))
+		modpath = Paths.getPreloadPath(xmlPath);
+	if (FileSystem.exists(modpath))
+		isAnimated = true;
+	#else
+	modpath = Paths.getPreloadPath(xmlPath);
+	if (Assets.exists(modpath))
+		isAnimated = true;
+	#end
+
+	if (isAnimated)
+	{
+		healthBarBG.frames = Paths.getSparrowAtlas(path);
+		healthBarBG.animation.addByPrefix('idle', 'healthBar', 24, true);
+		healthBarBG.animation.play('idle');
+	}
+	else
+		healthBarBG.loadGraphic(Paths.image(path));
+
+	healthBarBG.offset.set(offsetX, offsetY);
+}
+
+public function reloadHealthBarColors()
+{
+	healthBar.createFilledBar(FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]),
+		FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]));
+
+	healthBar.updateBar();
+}
+
 var whrilmoving:Bool = false; 
 /////// additions
 function otherUpdate(elapsed:Float):Void{
 	switch(curSong.toLowerCase()){
 		case "bara no yume": whrilUpdate(elapsed);
 		case "metamorphosis", "down-bad": metaupdate(elapsed);
+		case "home", "markov", "stagnant": updateBad(elapsed);
+
 	}
 
-	if(FlxG.keys.justPressed.ONE){
+	if(FlxG.keys.justPressed.Z){
 		brightness.alpha += 0.1;
 	}
-	if(FlxG.keys.justPressed.TWO){
+	if(FlxG.keys.justPressed.X){
 		brightness.alpha -= 0.1;
 	}
 	// scoreTxt.text = Std.string(storyDifficulty);
@@ -9078,6 +9134,14 @@ function anotherStepHit():Void {
 	switch(curSong.toLowerCase()){
 		case "bara no yume": bnyStepHit(curStep);
 		case "metamorphosis", "down-bad": metStepHit(curStep);
+		case "home", "markov", "stagnant": stepHitBad(curStep);
+	}
+}
+function anotherBeatHit():Void {
+	switch(curSong.toLowerCase()){
+		// case "bara no yume": bnyStepHit(curStep);
+		// case "metamorphosis", "down-bad": metStepHit(curStep);
+		case "home", "markov", "stagnant": beatHitBad(curStep);
 	}
 }
 //// objs shit
@@ -9179,7 +9243,22 @@ function metaupdate(elapsed):Void{
 		}
 	}
 }
-function postCreate(){
+var daSong:String = "";
+var camOther:FlxCamera;
+function preCreate():Void {
+	if(["markov", "stagnant", "home"].contains(curSong.toLowerCase())){
+		bePre();
+	}
+}
+var imdead:FlxSprite;
+function postCreate():Void {
+	camOther = new FlxCamera();
+	camOther.bgColor.alpha = 0;
+	FlxG.cameras.add(camOther);
+
+
+
+	daSong = SONG.song.toLowerCase();
 	switch(curSong.toLowerCase()){
 		case "dual demise-sorb":
 			iconP2.changeIcon("dual-demise-sorb");
@@ -9199,6 +9278,1990 @@ function postCreate(){
 	if(curSong.toLowerCase() == "metamorphosis" || curSong.toLowerCase() == "down-bad"){
 		remove(gf);
 	}
+	if(["markov", "stagnant", "home"].contains(curSong.toLowerCase())){
+		trace("BAD ENDING POST CREATE");
+		trace("IMDEAD");
+		imdead = new FlxSprite(0, 0).loadGraphic(Paths.image('everyoneisdead', 'doki'));
+		imdead.scrollFactor.set();
+		imdead.cameras = [camHUD];
+		imdead.alpha = 0.00001;
+		add(imdead);
+		trace("DARKSCREEN");
+
+		darkScreen = new FlxSprite(0, 0).makeGraphic(1280*2, 720*2, FlxColor.BLACK);
+		add(darkScreen);
+		darkScreen.cameras = [camHUD];
+		trace("TITLECARD IS " + daSong);
+
+		titleCard = new FlxSprite();
+		switch(daSong){
+			case "markov":
+				titleCard.frames = Paths.getSparrowAtlas('titlecards/markov'); // curSong
+			case "stagnant":
+				titleCard.frames = Paths.getSparrowAtlas('titlecards/stagnant'); // curSong
+			case "home":
+				titleCard.frames = Paths.getSparrowAtlas('titlecards/home'); // curSong
+			default:
+				titleCard.frames = Paths.getSparrowAtlas('titlecards/markov'); // curSong
+		}
+		trace("POST SET TITLECARD");
+
+		titleCard.animation.addByPrefix('idle', 'card', 24, true);
+		titleCard.animation.play('idle');
+		titleCard.antialiasing = SaveData.globalAntialiasing;
+		titleCard.cameras = [camOther];
+		titleCard.screenCenter();
+		titleCard.alpha = 0.001;
+		titleCard.scale.set(0.8,0.8);
+		add(titleCard);
+		darkoverlay = new FlxSprite(-FlxG.width * FlxG.camera.zoom, -FlxG.height * FlxG.camera.zoom).makeGraphic(Std.int(FlxG.width * 3), Std.int(FlxG.height * 3), 0xFF000000);
+		darkoverlay.alpha = 0.0001;
+		darkoverlay.scrollFactor.set(0, 0);
+		add(darkoverlay);
+				trace("darkoverlay");
+	}
 }
 
+
+
+
+//////////////////// bad endin
+var extra1:Character;
+var extra2:Character;
+var screenPulse:FlxSprite;
+var daStatic:FlxSprite;
+var bgwindo:FlxBackdrop;
+var bgwindo2:FlxBackdrop;
+var cambgwindo:FlxBackdrop;
+var cambgwindo2:FlxBackdrop;
+var stagstatic:FlxSprite;
+var holylight:FlxSprite;
+var darkoverlay:FlxSprite;
+var evilClubBG:FlxSprite;
+var poemTransition:FlxSprite;
+var darkScreen:FlxSprite;
+var titleCard:FlxSprite;
+var evilClubBGScribbly:FlxSprite;
+var evilPoem:FlxSprite;
+// var bloodyBG:FlxSprite;
+var closetCloseUp:BGSprite;
+var funnyEyes:FlxSprite;
+
+var swagShader:ColorSwap;
+
+var stageStatic:BGSprite;
+var inthenotepad:BGSprite;
+var notepadoverlay:BGSprite;
+var glitchback:BGSprite;
+var glitchfront:BGSprite;
+var ruinedClubBG:BGSprite;
+var bloodDrips:Bool = false;
+var bloodStrums:FlxTypedGroup<FlxSprite>;
+var clubroomdark:FlxSprite;
+var evilSpace:FlxBackdrop;
+
+var defaultStageZoom:Float = 1;
+var isCameraOnForcedPos:Bool = false;
+var forcecamZooming:Bool = false;
+var cpuControlled:Bool = false;
+var songSpeedType:String = 'multiplicative';
+var songSpeedTween:FlxTween;
+var camFollowPos:FlxObject;
+var boyfriendMap:Map<String, Character>;
+var dadMap:Map<String, Character>;
+var gfMap:Map<String, Character>;
+var precacheList:Map<String, Dynamic>;
+
+public var boyfriendGroup:FlxSpriteGroup;
+public var dadGroup:FlxSpriteGroup;
+public var gfGroup:FlxSpriteGroup;
+private var staticAlpha:Float = 0;
+function bePre():Void {
+	trace("PRE BAD ENDING");
+
+	boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
+	dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+	gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+
+	// grpUnderlay = new FlxTypedGroup<FlxSprite>();
+	// add(grpUnderlay);
+}
+// var ////// ///// ///// timebarBG:BGSprite;
+function stageinits(lesong:String = "reconciliation", lestage:String = "clubroom"):Void {
+	trace("stageinit "  + lesong);
+	if(!["stagnant", "home", "markov"].contains(lesong.toLowerCase())) return;
+	trace("STAGE INIT");
+	trace(curStage);
+	switch (curStage)
+	{
+		case 'dokiclubroom': // DDTO
+			
+
+			closet = new BGSprite('clubroom/DDLCfarbg', 'doki', false, -700, -520, 0.9, 0.9);
+			closet.setGraphicSize(Std.int(closet.width * 1.6));
+			closet.updateHitbox();
+			add(closet);
+
+			clubroom = new BGSprite('clubroom/DDLCbg', 'doki', false, -700, -520, 1, 0.9);
+			clubroom.setGraphicSize(Std.int(clubroom.width * 1.6));
+			clubroom.updateHitbox();
+			add(clubroom);
+
+			if (!SaveData.lowEnd)
+			{
+				deskfront = new BGSprite('clubroom/DesksFront', 'doki', false, -700, -520, 1.3, 0.9);
+				deskfront.setGraphicSize(Std.int(deskfront.width * 1.6));
+				deskfront.updateHitbox();
+			}
+
+		case 'clubroomevil': // DDTO BAD ENDING
+			if (!SaveData.lowEnd)
+			{
+				evilSpace = new FlxBackdrop(Paths.image('bigmonika/Sky', 'doki'));
+				evilSpace.scrollFactor.set(0.1, 0.1);
+				evilSpace.velocity.set(-10, 0);
+				evilSpace.antialiasing = SaveData.globalAntialiasing;
+				add(evilSpace);
+			}
+
+			evilClubBG = new BGSprite('bigmonika/BG', 'doki', false, -220, -110, 1, 1);
+			evilClubBG.setGraphicSize(Std.int(evilClubBG.width * 1.3));
+			add(evilClubBG);
+
+		case 'stagnant': // hueh
+			closet = new BGSprite('clubroom/DDLCfarbg', 'doki', false, -700, -520, 0.9, 0.9);
+			closet.setGraphicSize(Std.int(closet.width * 1.6));
+			closet.updateHitbox();
+			add(closet);
+
+			clubroom = new BGSprite('clubroom/DDLCbg', 'doki', false, -700, -520, 1, 0.9);
+			clubroom.setGraphicSize(Std.int(clubroom.width * 1.6));
+			clubroom.updateHitbox();
+			add(clubroom);
+
+			if (!SaveData.lowEnd)
+			{
+				deskfront = new BGSprite('clubroom/DesksFront', 'doki', false, -700, -520, 1.3, 0.9);
+				deskfront.setGraphicSize(Std.int(deskfront.width * 1.6));
+				deskfront.updateHitbox();
+
+				evilSpace = new FlxBackdrop(Paths.image('bigmonika/Sky', "doki"));
+				evilSpace.scrollFactor.set(0.1, 0.1);
+				evilSpace.velocity.set(-10, 0);
+				evilSpace.y -= 300;
+				evilSpace.antialiasing = SaveData.globalAntialiasing;
+				evilSpace.visible = false;
+				add(evilSpace);
+
+				clouds = new FlxBackdrop(Paths.image('bigmonika/Clouds', 'doki'));
+				clouds.scrollFactor.set(0.1, 0.1);
+				clouds.velocity.set(-13, 0);
+				clouds.y -= 300;
+				clouds.antialiasing = SaveData.globalAntialiasing;
+				clouds.scale.set(0.7, 0.7);
+				clouds.visible = false;
+				add(clouds);
+
+				fancyclouds = new FlxBackdrop(Paths.image('bigmonika/mask', 'doki'));
+				fancyclouds.scrollFactor.set(0.1, 0.1);
+				fancyclouds.velocity.set(-13, 0);
+				fancyclouds.y -= 300;
+				fancyclouds.antialiasing = SaveData.globalAntialiasing;
+				fancyclouds.scale.set(0.7, 0.7);
+				fancyclouds.alpha = 1;
+				fancyclouds.visible = false;
+				add(fancyclouds);
+			}
+
+			evilClubBG = new BGSprite('bigmonika/BG', null, false, -220, -110, 1, 1);
+			evilClubBG.setGraphicSize(Std.int(evilClubBG.width * 1.3));
+			evilClubBG.visible = false;
+			add(evilClubBG);
+
+			if (!SaveData.lowEnd)
+			{
+				clubroomdark = new BGSprite('bigmonika/shadow', null, false, -220, -110, 1, 1);
+				clubroomdark.visible = false;
+				clubroomdark.setGraphicSize(Std.int(clubroomdark.width * 1.3));
+
+				windowlight = new BGSprite('bigmonika/WindowLight', null, false, -220, -110, 1, 1);
+				windowlight.visible = false;
+				windowlight.setGraphicSize(Std.int(windowlight.width * 1.3));
+				add(windowlight);
+			}
+
+			// evilClubBGScribbly = new BGSprite('BGsketch', null, false, -220, -110, 1, 1, ['BGSketch'], true);
+			
+			evilClubBGScribbly = new FlxSprite();
+			evilClubBGScribbly.frames = Paths.getSparrowAtlas("BGsketch");
+			evilClubBGScribbly.animation.addByPrefix("BGSketch","BGSketch",24, true);
+			evilClubBGScribbly.animation.play("BGSketch");
+
+			evilClubBGScribbly.setGraphicSize(Std.int(evilClubBGScribbly.width * 1.3));
+			evilClubBGScribbly.visible = false;
+			evilClubBGScribbly.alpha = 0.0001;
+			add(evilClubBGScribbly);
+
+			evilPoem = new BGSprite('PaperBG', null, false, -220, -110, 1, 1, ['PaperBG'], true);
+			evilPoem.setGraphicSize(Std.int(evilPoem.width * 1.3));
+			evilPoem.visible = false;
+			add(evilPoem);
+
+			poemTransition = new BGSprite('PoemTransition', null, false, 0, 0, 1, 1, ['poemtransition']);
+			poemTransition.cameras = [camHUD];
+			poemTransition.screenCenter();
+			poemTransition.visible = false;
+			add(poemTransition);
+
+		case 'markov':
+			trace("MARKOV STAGE");
+
+			if (!SaveData.lowEnd)
+			{
+				trace("NOT LOW END");
+				evilSpace = new FlxBackdrop(Paths.image('bigmonika/Sky', "doki"));
+				evilSpace.scrollFactor.set(0.1, 0.1);
+				evilSpace.velocity.set(-10, 0);
+				evilSpace.y -= 300;
+				evilSpace.antialiasing = SaveData.globalAntialiasing;
+				add(evilSpace);
+				trace("post evil space");
+
+				clouds = new FlxBackdrop(Paths.image('bigmonika/Clouds', 'doki'));
+				clouds.scrollFactor.set(0.1, 0.1);
+				clouds.velocity.set(-13, 0);
+				clouds.y -= 300;
+				clouds.antialiasing = SaveData.globalAntialiasing;
+				clouds.scale.set(0.7, 0.7);
+				add(clouds);
+				trace("post clouds");
+
+				fancyclouds = new FlxBackdrop(Paths.image('bigmonika/mask', 'doki'));
+				fancyclouds.scrollFactor.set(0.1, 0.1);
+				fancyclouds.velocity.set(-13, 0);
+				fancyclouds.y -= 300;
+				fancyclouds.antialiasing = SaveData.globalAntialiasing;
+				fancyclouds.scale.set(0.7, 0.7);
+				fancyclouds.alpha = 1;
+				add(fancyclouds);
+				trace("post fancy clouds");
+
+			}
+
+			evilClubBG = new FlxSprite(-220,-110).loadGraphic(Paths.image("bigmonika/BG", "doki"));
+			evilClubBG.setGraphicSize(Std.int(evilClubBG.width * 1.3));
+			add(evilClubBG);			add(evilClubBG);
+				trace("post evil club bg");
+
+			if (!SaveData.lowEnd)
+			{
+				clubroomdark = new FlxSprite(-220, -110).loadGraphic(Paths.image("bigmonika/shadow", "doki"));
+				clubroomdark.setGraphicSize(Std.int(clubroomdark.width * 1.3));
+
+				trace("post clubroomdark");
+
+				// windowlight = new BGSprite('bigmonika/WindowLight', 'doki', false, -220, -110, 1, 1);
+				windowlight = new FlxSprite(-220, -110).loadGraphic(Paths.image("bigmonika/WindowLight", "doki"));
+				windowlight.setGraphicSize(Std.int(windowlight.width * 1.3));
+				add(windowlight);
+				trace("post windowlight");
+
+			}
+
+			// evilClubBGScribbly = new BGSprite('BGsketch', 'doki', false, -220, -110, 1, 1, ['BGSketch'], true);
+			evilClubBGScribbly = new FlxSprite();
+			evilClubBGScribbly.frames = Paths.getSparrowAtlas("BGsketch");
+			evilClubBGScribbly.animation.addByPrefix("BGSketch","BGSketch",24, true);
+			evilClubBGScribbly.animation.play("BGSketch");
+			evilClubBGScribbly.setGraphicSize(evilClubBGScribbly.width);
+			evilClubBGScribbly.visible = false;
+			evilClubBGScribbly.alpha = 0;
+			add(evilClubBGScribbly);
+			trace("post evilClubBGScribbly");
+
+			// evilPoem = new BGSprite('markovend', 'doki', false, -220, -110, 1, 1);
+			evilPoem = new FlxSprite(-220, -110).loadGraphic(Paths.image("markovend", "doki"));
+			// evilPoem.frames = Paths.getSparrowAtlas("markovend", "doki");
+			// evilPoem.animation.addByPrefix
+			evilPoem.setGraphicSize(Std.int(evilPoem.width * 1.3));
+			evilPoem.visible = false;
+			add(evilPoem);
+			trace("evilpoem");
+
+			// // //// bloodyBG = new BGSprite('bgBlood', 'doki', false,  -220, 0, 1, 1, ['bgBlood'], false);
+			// //// bloodyBG = new FlxSprite(-220, 0);
+			// trace("//// bloodyBG");
+			// //// bloodyBG.frames = Paths.getSparrowAtlas("bgBlood", "doki");
+			// trace("//// bloodyBG1");
+			// //// bloodyBG.animation.addByPrefix('bgBlood', 'bgBlood', 12, false);
+			// trace("//// bloodyBG2");
+			// //// bloodyBG.setGraphicSize(Std.int(//// bloodyBG.width * 1.3));
+			// trace("//// bloodyBG3");
+			// //// bloodyBG.alpha = 0.001;
+			// trace("//// bloodyBG4");
+			// // add(//// bloodyBG);
+			// trace("//// bloodyBG5");
+
+			closetCloseUp = new BGSprite('ClosetBG', 'doki', false, -250, 0, 1, 1);
+			closetCloseUp.setGraphicSize(Std.int(closetCloseUp.width * 0.85));
+			closetCloseUp.updateHitbox();
+			closetCloseUp.visible = false;
+			add(closetCloseUp);
+			trace("closetcloseup");
+
+			// funnyEyes = new BGSprite('EyeMidwayBG', 'doki', false, 0, 0, 1, 1, ['Midway'], true);
+			// funnyEyes = new FlxSprite(0,0).loadGraphic(Paths.image("EyeMidwayBG", "doki"));
+			funnyEyes = new FlxSprite(0,0);
+			funnyEyes.frames = Paths.getSparrowAtlas("EyeMidwayBG");
+			funnyEyes.animation.addByPrefix("Midway", "Midway");
+			funnyEyes.animation.play("Midway");
+			
+			funnyEyes.antialiasing = SaveData.globalAntialiasing;
+			funnyEyes.alpha = 0.0001;
+			funnyEyes.cameras = [camHUD];
+			// funnyEyes.setGraphicSize(Std.int(FlxG.width));
+			funnyEyes.setGraphicSize(FlxG.width);
+			funnyEyes.updateHitbox();
+			funnyEyes.screenCenter();
+			trace("funnyeyes");
+
+			add(funnyEyes);
+			addCharacterToList('gameover-markov'); //Not a thingie
+			trace("post add char to list");
+		
+		case 'home':
+			swagShader = new ColorSwap();
+			swagShader.saturation = -100;
+
+			stageStatic = new BGSprite('ruinedclub/HomeStatic', 'doki', false, 0, 0, 0, 0, ['HomeStatic'], true);
+			stageStatic.screenCenter();
+			stageStatic.y = -140;
+			stageStatic.visible = false;
+			add(stageStatic);
+
+			if (!SaveData.lowEnd)
+			{
+				bgwindo = new FlxBackdrop(Paths.image('ruinedclub/bgwindows2'));
+				bgwindo.velocity.set(-40, 0);
+				bgwindo.scrollFactor.set(0.5, 0.5);
+				bgwindo.antialiasing = SaveData.globalAntialiasing;
+				add(bgwindo);
+
+				bgwindo2 = new FlxBackdrop(Paths.image('ruinedclub/bgwindows'));
+				bgwindo2.velocity.set(-60, 0);
+				bgwindo2.scrollFactor.set(0.8, 0.8);
+				bgwindo2.antialiasing = SaveData.globalAntialiasing;
+				add(bgwindo2);
+
+				evilSpace = new FlxBackdrop(Paths.image('bigmonika/Sky', "doki"));
+				evilSpace.scrollFactor.set(0.1, 0.1);
+				evilSpace.velocity.set(-10, 0);
+				evilSpace.y -= 300;
+				evilSpace.antialiasing = SaveData.globalAntialiasing;
+				add(evilSpace);
+
+				clouds = new FlxBackdrop(Paths.image('bigmonika/Clouds', 'doki'));
+				clouds.scrollFactor.set(0.1, 0.1);
+				clouds.velocity.set(-13, 0);
+				clouds.y -= 300;
+				clouds.antialiasing = SaveData.globalAntialiasing;
+				clouds.scale.set(0.7, 0.7);
+				add(clouds);
+
+				fancyclouds = new FlxBackdrop(Paths.image('bigmonika/mask', 'doki'));
+				fancyclouds.scrollFactor.set(0.1, 0.1);
+				fancyclouds.velocity.set(-13, 0);
+				fancyclouds.y -= 300;
+				fancyclouds.antialiasing = SaveData.globalAntialiasing;
+				fancyclouds.scale.set(0.7, 0.7);
+				fancyclouds.alpha = 1;
+				add(fancyclouds);
+			}
+			trace("post all stages");
+			bakaOverlay = new BGSprite('BakaBGDoodles', 'doki', false, 0, 0, 1, 1, ['Normal Overlay'], true);
+			bakaOverlay.animation.addByPrefix('hueh', 'HOME Overlay', 24, false);
+			bakaOverlay.antialiasing = SaveData.globalAntialiasing;
+			bakaOverlay.visible = true;
+			bakaOverlay.alpha = 0.0001;
+			bakaOverlay.cameras = [camHUD];
+			bakaOverlay.setGraphicSize(Std.int(FlxG.width));
+			bakaOverlay.updateHitbox();
+			bakaOverlay.screenCenter();
+			add(bakaOverlay);
+			trace("bakaoverlay");
+
+			inthenotepad = new BGSprite('notepad', 'doki', false, 0, 0, 1, 1);
+			inthenotepad.visible = false;
+			add(inthenotepad);
+			trace("inthenotepad");
+
+			notepadoverlay = new BGSprite('notepad_overlay', 'doki', false, 0, 0, 1, 1);
+			notepadoverlay.visible = false;
+			trace("notepadoverlay");
+
+			closet = new BGSprite('clubroom/DDLCfarbg', 'doki', false, -700, -520, 0.9, 0.9);
+			closet.setGraphicSize(Std.int(closet.width * 1.6));
+			closet.updateHitbox();
+			closet.shader = swagShader.shader;
+			add(closet);
+			trace("closet");
+
+			clubroom = new BGSprite('clubroom/DDLCbg', 'doki', false, -700, -520, 1, 0.9);
+			clubroom.setGraphicSize(Std.int(clubroom.width * 1.6));
+			clubroom.updateHitbox();
+			clubroom.shader = swagShader.shader;
+			add(clubroom);
+			trace("clubroom");
+
+			// evilClubBG = new BGSprite('bigmonika/BG', 'doki', false, -220, -110, 1, 1);
+			evilClubBG = new FlxSprite(-220,-110).loadGraphic(Paths.image("bigmonika/BG", "doki"));
+			evilClubBG.setGraphicSize(Std.int(evilClubBG.width * 1.3));
+			evilClubBG.visible = false;
+			add(evilClubBG);
+			trace("evilClubBG");
+
+			if (!SaveData.lowEnd)
+			{
+				// clubroomdark = new BGSprite('bigmonika/shadow', 'doki', false, -220, -110, 1, 1);
+				clubroomdark = new FlxSprite(-220, -110).loadGraphic(Paths.image("bigmonika/shadow", "doki"));
+				clubroomdark.setGraphicSize(Std.int(clubroomdark.width * 1.3));
+				clubroomdark.visible = false;
+				trace("clubroomdark");
+
+				windowlight = new BGSprite('bigmonika/WindowLight', 'doki', false, -220, -110, 1, 1);
+				windowlight.setGraphicSize(Std.int(windowlight.width * 1.3));
+				windowlight.visible = false;
+				add(windowlight);
+				trace("windowlight");
+			}
+
+			evilPoem = new BGSprite('PaperBG', 'doki', false, -220, -110, 1, 1, ['PaperBG'], true);
+			evilPoem.setGraphicSize(Std.int(evilPoem.width * 1.3));
+			evilPoem.visible = false;
+			add(evilPoem);
+			trace("evilPoem");
+
+			glitchback = new BGSprite('ruinedclub/glitchback1', 'doki', false, -220, -110, 0.6, 1);
+			glitchback.setGraphicSize(Std.int(glitchback.width * 1.3));
+			glitchback.visible = false;
+			add(glitchback);
+			trace("glitchback");
+
+			ruinedClubBG = new BGSprite('ruinedclub/BG', 'doki', false, -220, -110, 1, 1);
+			ruinedClubBG.setGraphicSize(Std.int(ruinedClubBG.width * 1.3));
+			ruinedClubBG.visible = false;
+			add(ruinedClubBG);
+			trace("ruinedClubBG");
+
+			glitchfront = new BGSprite('ruinedclub/glitchfront1', 'doki', false, -220, -110, 1.2, 1);
+			glitchfront.setGraphicSize(Std.int(glitchfront.width * 1.3));
+			glitchfront.visible = false;
+			trace("glitchfront");
+
+			evilClubBGScribbly = new BGSprite('BGsketch', 'doki', false, -220, -110, 1, 1, ['BGSketch'], true);
+			evilClubBGScribbly.setGraphicSize(Std.int(evilClubBGScribbly.width * 1.3));
+			evilClubBGScribbly.visible = false;
+			evilClubBGScribbly.alpha = 0;
+			add(evilClubBGScribbly);
+			trace("evilClubBGScribbly");
+			
+
+			if (!SaveData.lowEnd)
+			{
+				deskfront = new BGSprite('clubroom/DesksFront', 'doki', false, -700, -520, 1.3, 0.9);
+				deskfront.setGraphicSize(Std.int(deskfront.width * 1.6));
+				deskfront.updateHitbox();
+				deskfront.shader = swagShader.shader;
+				trace("deskfront");
+
+			}
+
+	}
+	
+	extra1 = new Character(-150, 70, 'sil_sayori');
+	extra1.scrollFactor.set(0.95, 0.95);
+	extra1.alpha = 0.0001;
+	extra1.color = FlxColor.GRAY;
+	add(extra1);
+				trace("extra1");
+
+	extra2 = new Character(1050, 10, 'sil_yuri', true);
+	extra2.scrollFactor.set(0.95, 0.95);
+	extra2.alpha = 0.0001;
+	extra2.color = FlxColor.GRAY;
+	add(extra2);
+				trace("extra2");
+	trace("second stage switch");
+
+	switch (curStage)
+	{
+		case 'home':
+				trace("home");
+
+			if (!SaveData.lowEnd)
+			{
+				add(clubroomdark);
+			}
+			add(notepadoverlay);
+			add(glitchfront);
+		case 'stagnant' | 'markov':
+				trace("stag mark");
+			if (!SaveData.lowEnd) add(clubroomdark);
+	}
+	//stealing this from DDTO
+	vignette = new FlxSprite(0, 0).loadGraphic(Paths.image('vignette', 'doki'));
+	vignette.scrollFactor.set();
+	vignette.cameras = [camHUD];
+	vignette.alpha = 0.00001;
+	add(vignette);
+				trace("vignette");
+
+	screenPulse = new FlxSprite(0,0).loadGraphic(Paths.image('libitina/vignetteend', 'doki')); 
+	screenPulse.setGraphicSize(FlxG.width, FlxG.height);
+	screenPulse.screenCenter();
+	screenPulse.alpha = 0.0001;
+	add(screenPulse);
+				trace("screenPulse");
+
+	// daStatic = new BGSprite('daSTAT', null, false, 0, 0, 1.0, 1.0, ['staticFLASH'], true);
+	daStatic = new FlxSprite(0,0).loadGraphic("daSTAT", "doki");
+	daStatic.cameras = [camHUD];	
+	daStatic.setGraphicSize(FlxG.width, FlxG.height);
+	daStatic.screenCenter();
+	daStatic.alpha = 0.0001;
+	add(daStatic);
+				trace("daStatic");
+
+	// redStatic = new BGSprite('ruinedclub/HomeStatic', 'doki', false, 0, 0, 1, 1, ['HomeStatic'], true);
+	redStatic = new FlxSprite(0,0).loadGraphic(Paths.image("ruinedclub/HomeStatic", "doki"));
+	redStatic.cameras = [camHUD];
+	redStatic.setGraphicSize(FlxG.width, FlxG.height);
+	redStatic.screenCenter();
+	redStatic.alpha = 0.0001;
+	add(redStatic);
+				trace("redStatic");
+
+	cambgwindo = new FlxBackdrop(Paths.image('ruinedclub/bgwindows2', "doki"));
+	cambgwindo.velocity.set(-40, 0);
+	cambgwindo.antialiasing = SaveData.globalAntialiasing;
+	cambgwindo.alpha = 0.0001;
+	add(cambgwindo);
+				trace("cambgwindo");
+
+	cambgwindo2 = new FlxBackdrop(Paths.image('ruinedclub/bgwindows', "doki"));
+	cambgwindo2.velocity.set(-60, 0);
+	cambgwindo2.antialiasing = SaveData.globalAntialiasing;
+	cambgwindo2.alpha = 0.0001;
+	add(cambgwindo2);
+				trace("cambgwindo2");
+
+	// stagstatic = new BGSprite('stagnant_glitch', 'doki', false, 0, 0, 1.0, 1.0, ['sadface 2'], false);
+	stagstatic = new FlxSprite(0,0);
+	stagstatic.frames = Paths.getSparrowAtlas('stagnant_glitch');
+	stagstatic.animation.addByPrefix("sadface 2", "sadface 2");
+	stagstatic.cameras = [camHUD];
+	stagstatic.setGraphicSize(FlxG.width, FlxG.height);
+	stagstatic.screenCenter();
+	stagstatic.alpha = 0.0001;
+	add(stagstatic);
+				trace("stagstatic");
+
+	// just incase
+	// precacheList.set('stagnant_glitch', 'image');
+
+	holylight = new FlxSprite(0,0).loadGraphic(Paths.image('deadlight', 'doki'));
+	holylight.cameras = [camHUD];
+	holylight.setGraphicSize(FlxG.width, FlxG.height);
+	holylight.screenCenter();
+	holylight.alpha = 0.0001;
+	add(holylight);
+				trace("holylight");
+
+
+
+	// for (key => type in precacheList)
+	// {
+	// 	switch (type)
+	// 	{
+	// 		case 'image':
+	// 			Paths.image(key);
+	// 		case 'sound':
+	// 			Paths.sound(key);
+	// 		case 'music':
+	// 			Paths.music(key);
+	// 	}
+	// }
+	addCharacterToList("yuri-closeup");
+	addCharacterToList("yuri-gore");
+	addCharacterToList("gf-markov");
+	if(curSong == "markov"){
+		Paths.getSparrowAtlas("MarkovEyes");
+	}
+}
+
+function funnyGlitch(duration:Float, sound:String):Void
+{
+	if (sound.length > 0)
+		FlxG.sound.play(Paths.sound(sound));
+
+	// don't do anything if the user decided to be funny
+	if (!SaveData.shaders || duration <= 0)
+		return;
+
+	camGame.filtersEnabled = true;
+	FlxTween.tween(this, {staticAlpha: 1}, 0.5, {ease:FlxEase.circOut});
+
+	new FlxTimer().start(duration, function(tmr:FlxTimer)
+	{
+		camGame.filtersEnabled = false;
+	});
+}
+function bevent(name:String = "", value1:String = "", value2:String = "", value3:String = ""):Void {
+		trace(name + " |||||", " " +value1, " " +value2, " " +value3);
+		switch (name)
+		{
+			case 'remove darkScreen':
+				if (darkScreen != null)
+				{
+					trace("not null");
+					var val1:Float = Std.parseFloat(value1);
+					var val2:Float = Std.parseFloat(value2);
+
+					if (Math.isNaN(val1) || val1 == 0)
+					{
+						val1 = 0.0001;
+					}
+					if (Math.isNaN(val2) || val2 == 0)
+					{
+						val2 = 0.0001;
+					}
+					
+					if (val1 != 0)
+					{
+						FlxTween.tween(darkScreen, {alpha: val2}, val1, {ease: FlxEase.linear});
+					}
+				}
+			case 'Screen in Darkness':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val1) || val1 == 0)
+				{
+					val1 = 0.0001;
+				}
+				if (Math.isNaN(val2) || val2 == 0)
+				{
+					val2 = 0.0001;
+				}
+				if (val1 >= 1)
+				{
+					val1 = 1;
+				}
+				FlxTween.cancelTweensOf(darkoverlay);
+				FlxTween.tween(darkoverlay, {alpha: val1}, val2, {ease: FlxEase.linear});
+
+			case 'Hey!':
+				var value:Int = 2;
+				switch (value1.toLowerCase().trim())
+				{
+					case 'bf' | 'boyfriend' | '0':
+						value = 0;
+					case 'gf' | 'girlfriend' | '1':
+						value = 1;
+				}
+
+				var time:Float = Std.parseFloat(value2);
+				if (Math.isNaN(time) || time <= 0)
+					time = 0.6;
+
+				if (value != 0)
+				{
+					if (dad.curCharacter.startsWith('gf'))
+					{ // Tutorial GF is actually Dad! The GF is an imposter!! ding ding ding ding ding ding ding, dindinding, end my suffering
+						dad.playAnim('cheer', true);
+						dad.specialAnim = true;
+						dad.heyTimer = time;
+					}
+					else
+					{
+						gf.playAnim('cheer', true);
+						gf.specialAnim = true;
+						gf.heyTimer = time;
+					}
+				}
+				if (value != 1)
+				{
+					boyfriend.playAnim('hey', true);
+					boyfriend.specialAnim = true;
+					boyfriend.heyTimer = time;
+				}
+
+			case 'Set GF Speed':
+				var value:Int = Std.parseInt(value1);
+				if (Math.isNaN(value))
+					value = 1;
+				gfSpeed = value;
+
+			case 'Add Camera Zoom':
+				if (FlxG.camera.zoom < 1.35)
+				{
+					var camZoom:Float = Std.parseFloat(value1);
+					var hudZoom:Float = Std.parseFloat(value2);
+					if (Math.isNaN(camZoom))
+						camZoom = 0.015;
+					if (Math.isNaN(hudZoom))
+						hudZoom = 0.03;
+
+					FlxG.camera.zoom += camZoom;
+					camHUD.zoom += hudZoom;
+				}
+
+			case 'Play Animation':
+				// trace('Anim to play: ' + value1);
+				var char:Character = dad;
+				switch (value2.toLowerCase().trim())
+				{
+					case 'bf' | 'boyfriend':
+						char = boyfriend;
+					case 'gf' | 'girlfriend':
+						char = gf;
+					default:
+						var val2:Int = Std.parseInt(value2);
+						if (Math.isNaN(val2))
+							val2 = 0;
+
+						switch (val2)
+						{
+							case 1: char = boyfriend;
+							case 2: char = gf;
+						}
+				}
+				char.playAnim(value1, true);
+				char.specialAnim = true;
+
+			case 'Camera Follow Pos':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val1))
+					val1 = 0;
+				if (Math.isNaN(val2))
+					val2 = 0;
+
+				isCameraOnForcedPos = false;
+				if (!Math.isNaN(Std.parseFloat(value1)) || !Math.isNaN(Std.parseFloat(value2)))
+				{
+					camFollow.x = val1;
+					camFollow.y = val2;
+					isCameraOnForcedPos = true;
+				}
+
+			case 'Alt Idle Animation':
+				var char:Character = dad;
+				switch (value1.toLowerCase())
+				{
+					case 'gf' | 'girlfriend':
+						char = gf;
+					case 'boyfriend' | 'bf':
+						char = boyfriend;
+					default:
+						var val:Int = Std.parseInt(value1);
+						if (Math.isNaN(val))
+							val = 0;
+
+						switch (val)
+						{
+							case 1: char = boyfriend;
+							case 2: char = gf;
+						}
+				}
+				char.idleSuffix = value2;
+				char.recalculateDanceIdle();
+
+			case 'Screen Shake':
+				var valuesArray:Array<String> = [value1, value2];
+				var targetsArray:Array<FlxCamera> = [camGame, camHUD];
+				for (i in 0...targetsArray.length)
+				{
+					var split:Array<String> = valuesArray[i].split(',');
+					var duration:Float = 0;
+					var intensity:Float = 0;
+					if (split[0] != null)
+						duration = Std.parseFloat(split[0].trim());
+					if (split[1] != null)
+						intensity = Std.parseFloat(split[1].trim());
+					if (Math.isNaN(duration))
+						duration = 0;
+					if (Math.isNaN(intensity))
+						intensity = 0;
+
+					if (duration > 0 && intensity != 0)
+					{
+						targetsArray[i].shake(intensity, duration);
+					}
+				}
+
+			case 'Change Character':
+				var charType:Int = 0;
+				switch (value1)
+				{
+					case 'gf' | 'girlfriend':
+						charType = 2;
+					case 'dad' | 'opponent':
+						charType = 1;
+					default:
+						charType = Std.parseInt(value1);
+						if (Math.isNaN(charType)) charType = 0;
+				}
+				switch(charType){
+					case 0:
+						remove(boyfriend);
+						var lastAlpha:Float = boyfriend.alpha;
+						var lastx:Float = boyfriend.x;
+						var lasty:Float = boyfriend.y;
+						boyfriend.alpha = 0.00001;
+						boyfriend = new Character(lastx, lasty, value2, true);
+						boyfriend.alpha = lastAlpha;
+						boyfriend.dance(false);
+						add(boyfriend);
+						iconP1.changeIcon(boyfriend.healthIcon);
+					case 1:
+						remove(dad);
+						var yurioffx:Float = -200;
+						var yurioffy:Float = -140;
+						var lastAlpha:Float = dad.alpha;
+						var lastx:Float = dad.x;
+						var lasty:Float = dad.y;
+						if(dad.curCharacter == "yuri-closeup" || dad.curCharacter == "yuri-gore"){
+							lastx -= yurioffx;
+							lasty -= yurioffy;
+						}
+						dad.alpha = 0.00001;
+						dad = new Character(lastx, lasty, value2, false);
+						if(dad.curCharacter == "yuri-closeup" || dad.curCharacter == "yuri-gore"){
+							dad.x += yurioffx;
+							dad.y += yurioffy;
+						}
+						dad.alpha = lastAlpha;
+						dad.dance(false);
+						add(dad);
+						iconP2.changeIcon(dad.healthIcon);
+					case 2:
+						remove(gf);
+						var lastAlpha:Float = gf.alpha;
+						var lastx:Float = gf.x;
+						var lasty:Float = gf.y;
+						gf.alpha = 0.00001;
+						gf = new Character(lastx, lasty, value2, false);
+						gf.alpha = lastAlpha;
+						gf.dance(false);
+						add(gf);
+						iconP2.changeIcon(gf.healthIcon);
+				}
+			// switch (charType)
+				// {
+				// 	case 0:
+				// 		if (boyfriend.curCharacter != value2)
+				// 		{
+				// 			if (!boyfriendMap.exists(value2))
+				// 			{
+				// 				addCharacterToList(value2);
+				// 			}
+
+				// 			var lastAlpha:Float = boyfriend.alpha;
+				// 			boyfriend.alpha = 0.00001;
+				// 			boyfriend = boyfriendMap.get(value2);
+				// 			boyfriend.alpha = lastAlpha;
+				// 			boyfriend.dance(false);
+				// 			iconP1.changeIcon(boyfriend.healthIcon);
+				// 		}
+				// 		//// setOnLuas('boyfriendName', boyfriend.curCharacter);
+
+				// 	case 1:
+				// 		if (dad.curCharacter != value2)
+				// 		{
+				// 			if (!dadMap.exists(value2))
+				// 			{
+				// 				addCharacterToList(value2);
+				// 			}
+
+				// 			var wasGf:Bool = dad.curCharacter.startsWith('gf');
+				// 			var lastAlpha:Float = dad.alpha;
+				// 			dad.alpha = 0.00001;
+				// 			dad = dadMap.get(value2);
+				// 			if (!dad.curCharacter.startsWith('gf'))
+				// 			{
+				// 				if (wasGf)
+				// 				{
+				// 					gf.visible = true;
+				// 				}
+				// 			}
+				// 			else
+				// 			{
+				// 				gf.visible = false;
+				// 			}
+				// 			dad.alpha = lastAlpha;
+				// 			dad.dance(false);
+				// 			iconP2.changeIcon(dad.healthIcon);
+				// 		}
+				// 		//// setOnLuas('dadName', dad.curCharacter);
+
+				// 	case 2:
+				// 		if (gf.curCharacter != value2)
+				// 		{
+				// 			if (!gfMap.exists(value2))
+				// 			{
+				// 				addCharacterToList(value2);
+				// 			}
+
+				// 			var lastAlpha:Float = gf.alpha;
+				// 			gf.alpha = 0.00001;
+				// 			gf = gfMap.get(value2);
+				// 			gf.alpha = lastAlpha;
+				// 			gf.dance(false);
+				// 		}
+				// 		//// setOnLuas('gfName', gf.curCharacter);
+				// }
+				reloadHealthBarColors();
+
+			case 'Change Scroll Speed':
+				if (songSpeedType == "constant")
+					return;
+
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val1))
+					val1 = 1;
+				if (Math.isNaN(val2))
+					val2 = 0;
+
+				var newValue:Float = SONG.speed * val1;
+
+				if (val2 <= 0)
+				{
+					songSpeed = newValue;
+				}
+				else
+				{
+					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {
+						ease: FlxEase.linear,
+						onComplete: function(twn:FlxTween)
+						{
+							songSpeedTween = null;
+						}
+					});
+				}
+
+			case 'Change Combo UI':
+				pixelShitPart1 = value1;
+				pixelShitPart2 = value2;
+
+			case 'Change Health Graphic':
+				var stringArray:Array<String> = value1.trim().split(',');
+				var offsetArray:Array<String> = value2.trim().split(',');
+				if (value2 == '') offsetArray = ['0', '0'];
+
+				reloadHealthBarGraphic(stringArray[0], stringArray[1], Std.parseFloat(offsetArray[0]), Std.parseFloat(offsetArray[1]));
+			
+			case 'Change Time Graphic':
+				var stringArray:Array<String> = value1.trim().split(',');
+				var offsetArray:Array<String> = value2.trim().split(',');
+				if (value2 == '') offsetArray = ['0', '0'];
+
+				///// reload///// timebarGraphic(stringArray[0], stringArray[1], Std.parseFloat(offsetArray[0]), Std.parseFloat(offsetArray[1]));
+
+			case 'Change HUD Font':
+				switch (value1)
+				{
+					default: // ddto
+						///// timetxt.font = Paths.font("Aller_Rg.ttf");
+						scoreTxt.font = Paths.font("Aller_Rg.ttf");
+						//botplaytxt.font = Paths.font("riffic.ttf");
+
+						scoreTxt.borderSize = 1.25;
+						//botplaytxt.borderSize = 1.25;
+
+					case 'fnf':
+						///// timetxt.font = Paths.font("vcr.ttf");
+						scoreTxt.font = Paths.font("vcr.ttf");
+						//botplaytxt.font = Paths.font("vcr.ttf");
+
+						scoreTxt.borderSize = 1.25;
+						//botplaytxt.borderSize = 1.25;
+
+					case 'poem':
+						///// timetxt.font = Paths.font("VTKS_ANIMAL_2.ttf");
+						scoreTxt.font = Paths.font("VTKS_ANIMAL_2.ttf");
+						//botplaytxt.font = Paths.font("VTKS_ANIMAL_2.ttf");
+
+						scoreTxt.borderSize = 2;
+						//botplaytxt.borderSize = 2;
+				}
+
+			case 'Change Stagnant Stage':
+				trace(value1);
+				trace(value2);
+				trace(value3);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val2))
+					val2 = 0;
+
+				defaultCamZoom = defaultStageZoom;
+				FlxG.camera.zoom = defaultCamZoom;
+				trace("zoom set");
+				
+				//Considering all songs this should be shared
+				if(evilClubBG != null) evilClubBG.visible = false;
+				if(evilClubBGScribbly != null) evilClubBGScribbly.visible = false;
+				if(evilPoem != null) evilPoem.visible = false;
+				trace("first visible to false");
+				
+				isCameraOnForcedPos = false;
+				trace("switch curstage " + curStage);
+
+				switch (curStage)//per stage stuff
+				{
+					case 'home':
+						if (!SaveData.lowEnd)
+						{
+							deskfront.visible = false;
+							evilSpace.visible = false;
+							clouds.visible = false;
+							fancyclouds.visible = false;
+							windowlight.visible = false;
+							clubroomdark.visible = false;
+							bgwindo.visible = false;
+							bgwindo2.visible = false;
+						}
+						stageStatic.visible = false;
+						ruinedClubBG.visible = false;
+						glitchfront.visible = false;
+						glitchback.visible = false;
+						closet.visible = false;
+						clubroom.visible = false;
+						inthenotepad.visible = false;
+						notepadoverlay.visible = false;
+						boyfriendGroup.x = BF_X;
+						boyfriendGroup.y = BF_Y;
+					case 'markov':
+						trace("markov stage");
+
+						closetCloseUp.visible = false;
+						trace("closetcloseup visible " + closetCloseUp.visible );
+
+						GameOverSubstate.markovGameover = false;
+						trace("gameover thing" );
+					case 'stagnant':
+						if (!SaveData.lowEnd)
+						{
+							deskfront.visible = false;
+							evilSpace.visible = false;
+							clouds.visible = false;
+							fancyclouds.visible = false;
+							windowlight.visible = false;
+							clubroomdark.visible = false;
+						}
+						closet.visible = false;
+						clubroom.visible = false;
+				}
+				
+				evilClubBGScribbly.alpha = 0.0001;
+
+				switch (value1)
+				{
+					default:
+						closet.visible = true;
+						clubroom.visible = true;
+						if (!SaveData.lowEnd) deskfront.visible = true;
+					case 'evil':
+						defaultCamZoom = 0.8;
+						FlxG.camera.zoom = 0.8;
+						if (!SaveData.lowEnd)
+						{
+							evilSpace.visible = true;
+							clouds.visible = true;
+							fancyclouds.visible = true;
+							windowlight.visible = true;
+							clubroomdark.visible = true;
+						}
+						evilClubBG.visible = true;
+						evilClubBGScribbly.visible = true;
+					case 'poem':
+						defaultCamZoom = 0.9;
+						FlxG.camera.zoom = 0.9;
+						evilPoem.visible = true;
+					case 'markovpoem':
+						defaultCamZoom = 0.9;
+						FlxG.camera.zoom = 0.9;
+						evilPoem.visible = true;
+						//// bloodyBG.alpha = 1;
+						//// bloodyBG.animation.play('bgBlood');
+						screenPulse.alpha = 1;
+						funnyEyes.setGraphicSize((1280*1.3));
+						funnyEyes.cameras = [camHUD];
+						funnyEyes.alpha = 1;
+						GameOverSubstate.markovGameover = true;
+					case 'closet':
+						defaultCamZoom = 1.0;
+						FlxG.camera.zoom = 1.0;
+						closetCloseUp.visible = true;
+						GameOverSubstate.markovGameover = true;
+					case 'ruined' | 'ruinedclub':
+						defaultCamZoom = 0.8;
+						FlxG.camera.zoom = 0.8;
+						stageStatic.visible = true;
+						if (!SaveData.lowEnd)
+						{
+							bgwindo.visible = true;
+							bgwindo2.visible = true;
+						}
+						ruinedClubBG.visible = true;
+						glitchfront.visible = true;
+						glitchback.visible = true;
+					case 'notepad':
+						//fates are written, cause pandora didn't listen, time will march here with me, the screams of last you'll ever see
+						//I will kill you, I am marty the armidillou,the stinky smells won't deter me, I will drink all your pee
+						defaultCamZoom = 1.0;
+						FlxG.camera.zoom = 1.0;
+						//We are going to lock the camera for this event
+						stageStatic.visible = true;
+						if (!SaveData.lowEnd)
+						{
+							bgwindo.visible = true;
+							bgwindo2.visible = true;
+						}
+						inthenotepad.visible = true;
+						notepadoverlay.visible = true;
+						isCameraOnForcedPos = true;
+						camFollow.setPosition(650, 360);
+
+						camFollowPos.setPosition(650, 360);
+						boyfriendGroup.x = 430;
+						boyfriendGroup.y = -140;
+					case 'void':
+						defaultCamZoom = 0.9;
+						FlxG.camera.zoom = 0.9;
+						//basically don't unhide anything lmao
+					case 'redstatic':
+						defaultCamZoom = 0.9;
+						FlxG.camera.zoom = 0.9;
+						stageStatic.visible = true;
+				}
+
+				if (val2 > 0)
+				{
+					FlxTween.tween(evilClubBGScribbly, {alpha: 1}, val2, {
+						ease: FlxEase.sineIn,
+						onComplete: function(twn:FlxTween)
+						{
+							evilClubBGScribbly.alpha = 1;
+						}
+					});
+				}
+			case 'Glitch Effect':
+				var val1:Float = Std.parseFloat(value1);
+				if (Math.isNaN(val1))
+					val1 = 0.5;
+
+				funnyGlitch(val1, value2);
+			case 'Glitch increase':
+				switch (Std.parseFloat(value1))
+				{
+					case 1:
+						FlxTween.tween(daStatic, {alpha: 0.65}, 3.5, {ease: FlxEase.circOut});
+					case 2:
+						FlxTween.cancelTweensOf(daStatic);
+						daStatic.visible = false;
+					case 3:
+						FlxTween.cancelTweensOf(daStatic);
+						daStatic.visible = true;
+					case 4:
+						FlxTween.cancelTweensOf(daStatic);
+						remove(daStatic);
+				}
+			case 'Stagnant Glitch':
+				stagstatic.animation.play("sadface 2", true);
+				stagstatic.alpha = 1;
+			case 'Character Visibility':
+				var charType:Int = 0;
+				var val2:Float = Std.parseFloat(value2);
+				var val3:Float = Std.parseFloat(value3);
+
+				if (Math.isNaN(val2))
+					val2 = 1;
+				else if (val2 == 0)
+					val2 = 0.0001;
+
+				if (Math.isNaN(val3) || val3 == 0)
+					val3 = 0.0001;
+
+				if (value2 == 'true')
+					val2 = 1;
+				else if (value2 == 'false')
+					val2 = 0.0001;
+				
+				trace(value1 + ' & ' + value2 + ' & ' + value3);
+				switch (value1)
+				{
+					case 'gf' | 'girlfriend':
+						charType = 2;
+					case 'dad' | 'opponent':
+						charType = 1;
+					default:
+						charType = Std.parseInt(value1);
+						if (Math.isNaN(charType)) charType = 0;
+				}
+
+				switch (charType)
+				{
+					case 0:
+						FlxTween.cancelTweensOf(boyfriend);
+						FlxTween.tween(boyfriend, {alpha: val2}, val3, {ease: FlxEase.circOut});
+					case 1:
+						FlxTween.cancelTweensOf(dad);
+						FlxTween.tween(dad, {alpha: val2}, val3, {ease: FlxEase.circOut});
+					case 2:
+						FlxTween.cancelTweensOf(gf);
+						FlxTween.tween(gf, {alpha: val2}, val3, {ease: FlxEase.circOut});
+				}
+			case 'Move Character':
+				var charType:Int = 0;
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+
+				switch (value3)
+				{
+					case 'dad' | 'Dad' | 'DAD':
+						charType = 1;
+					case 'gf' | 'GF' | 'girlfriend' | 'Girlfriend':
+						charType = 2;
+					default:
+						charType = 0;
+				}
+
+				switch (charType)
+				{
+					case 1:
+						if (Math.isNaN(val1)) dadGroup.x = DAD_X;
+						else dadGroup.x = val1;
+
+						if (Math.isNaN(val2)) dadGroup.y = DAD_Y;
+						else dadGroup.y = val2;
+					case 2:
+						if (Math.isNaN(val1)) gfGroup.x = GF_X;
+						else gfGroup.x = val1;
+						
+						if (Math.isNaN(val2)) gfGroup.y = GF_Y;
+						else gfGroup.y = val2;
+					default:
+						if (Math.isNaN(val1)) boyfriendGroup.x = BF_X;
+						else boyfriendGroup.x = val1;
+
+						if (Math.isNaN(val2)) boyfriendGroup.y = BF_Y;
+						else boyfriendGroup.y = val2;
+				}
+			case 'Toggle Note Camera Movement':
+				if (SaveData.noteCamera > 0)
+				{
+					var val2:Float = Std.parseFloat(value2);
+
+					switch (value1.toLowerCase().trim())
+					{
+						case 'true' | '1':
+							noteCam = true;
+						default:
+							noteCam = false;
+					}
+	
+					if (Math.isNaN(val2))
+						camNoteExtend = 15 * SaveData.noteCamera;
+					else
+						camNoteExtend = val2 * SaveData.noteCamera;
+				}
+			case 'Move Opponent Tween':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				var val3:Float = Std.parseFloat(value3);
+			
+				if (Math.isNaN(val3) || val3 == 0)
+					val3 = 0.0001;
+
+				if (Math.isNaN(val1))
+					val1 = DAD_X;
+				if (Math.isNaN(val2))
+					val2 = DAD_Y;
+
+				FlxTween.cancelTweensOf(dadGroup);
+				FlxTween.tween(dadGroup, {x: val1, y: val2}, val3, {ease: FlxEase.circOut});
+
+			case 'Move Boyfriend Tween':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				var val3:Float = Std.parseFloat(value3);
+
+				if (Math.isNaN(val3) || val3 == 0)
+					val3 = 0.0001;
+
+				if (Math.isNaN(val1))
+					val1 = BF_X;
+				if (Math.isNaN(val2))
+					val2 = BF_Y;
+
+				FlxTween.cancelTweensOf(boyfriendGroup);
+				FlxTween.tween(boyfriendGroup, {x: val1, y: val2}, val3, {ease: FlxEase.circOut});
+
+			case 'Change Strumline':
+				if (value1 == '' || value1 == null)
+					return;
+
+				var tweenBool:Bool = false;
+				if (value2 == 'true')
+					tweenBool = true;
+
+				// remove(grpUnderlay);
+				// grpUnderlay = new FlxTypedGroup<FlxSprite>();
+				// grpUnderlay.cameras = [camHUD];
+				// add(grpUnderlay);
+
+				remove(strumLineNotes);
+				strumLineNotes = new FlxTypedGroup<StrumNote>();
+				strumLineNotes.cameras = [camHUD];
+				add(strumLineNotes);
+
+				playerStrums = new FlxTypedGroup<StrumNote>();
+				opponentStrums = new FlxTypedGroup<StrumNote>();
+
+				generateStaticArrows(0, value1, tweenBool);
+				generateStaticArrows(1, value1, tweenBool);
+			case 'Change Camera Zoom':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+
+				if (Math.isNaN(val1))
+					val1 = defaultStageZoom;
+
+				// if value2 isn't a numerical value, then rely on defaultCamZoom
+				if (Math.isNaN(val2))
+				{
+					var forceBool:Bool = false;
+					if (value2 == 'true')
+						forceBool = true;
+	
+					defaultCamZoom = val1;
+					if (forceBool)
+						FlxG.camera.zoom = val1;
+				}
+				else
+				{
+					FlxTween.tween(FlxG.camera, {zoom: val1}, val2, {
+						ease: FlxEase.cubeInOut,
+						onComplete: function(twn:FlxTween)
+						{
+							defaultCamZoom = val1;
+						}
+					});
+				}
+
+			case 'Add/Remove Vignette':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				// Value 1 for alpha
+				// Value 2 for speed it appears
+				FlxTween.cancelTweensOf(vignette);
+
+				if (Math.isNaN(val1))
+					val1 = 0;
+				if (Math.isNaN(val2) || val2 == 0)
+					val2 = 0.0001;
+			
+				trace(val1 + ' & ' + val2);
+
+				if (val2 != 0)
+					FlxTween.tween(vignette, {alpha: val1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+			case 'Red Static':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				// Value 1 for alpha
+				// Value 2 for speed it appears
+				FlxTween.cancelTweensOf(redStatic);
+
+				if (Math.isNaN(val1))
+					val1 = 0;
+				if (Math.isNaN(val2) || val2 == 0)
+					val2 = 0.0001;
+			
+				trace(val1 + ' & ' + val2);
+
+				if (val2 != 0)
+					FlxTween.tween(redStatic, {alpha: val1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+			case 'Show death screen':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+
+				if (value1 == null || value1 == 'false')
+					val1 = 0.00001;
+
+				if (Math.isNaN(val2) || val2 == 0)
+					val2 = 0.0001;
+				forcecamZooming = false;
+				camZooming = false;
+				FlxTween.tween(imdead, {alpha: val1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+				FlxTween.tween(cambgwindo, {alpha: val1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+				FlxTween.tween(cambgwindo2, {alpha: val1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+
+			case 'UI visibilty':
+				if (value1 == null || value1 == 'false')
+				{
+					iconP1.visible = false;
+					healthBar.visible = false;
+					healthBarBG.visible = false;
+					iconP1.visible = false;
+					iconP2.visible = false;
+					scoreTxt.visible = false;
+					//botplaytxt.visible = false;
+					///// timebar.visible = false;
+					////// ///// timebarBG.visible = false;
+					///// timetxt.visible = false;
+				}
+				if (value1 == 'true')
+				{
+					iconP1.visible = true;
+					healthBar.visible = true;
+					healthBarBG.visible = true;
+					iconP1.visible = true;
+					iconP2.visible = true;
+					scoreTxt.visible = true;
+
+					// if (cpuControlled)
+						//botplaytxt.visible = true;
+
+					///// timebar.visible = true;
+					////// ///// timebarBG.visible = true;
+					///// timetxt.visible = true;
+				}
+			case 'Force Dance':
+				var char:Character = dad;
+				switch (value1.toLowerCase().trim())
+				{
+					case 'bf' | 'boyfriend':
+						char = boyfriend;
+					case 'gf' | 'girlfriend':
+						char = gf;
+					default:
+						var val2:Int = Std.parseInt(value2);
+						if (Math.isNaN(val2))
+							val2 = 0;
+
+						switch (val2)
+						{
+							case 1: char = boyfriend;
+							case 2: char = gf;
+						}
+				}
+				char.specialAnim = false;
+				char.dance();
+			case 'Poem Transition':
+				var tweenBool:Bool = true;
+				if (value1 == 'false')
+					tweenBool = false;
+
+				if (tweenBool)
+				{
+					poemTransition.visible = true;
+					poemTransition.alpha = 1;
+					poemTransition.animation.play('poemtransition', true);
+				}
+				else
+				{
+					FlxTween.tween(poemTransition, {alpha: 0}, 0.25, {
+						ease: FlxEase.sineOut,
+						onComplete: function(twn:FlxTween)
+						{
+							poemTransition.alpha = 0;
+							poemTransition.visible = false;
+						}
+					});
+				}
+
+			case 'Tint Character':
+				//Only used for home but might as well make it universal
+				var char:Character = boyfriend;
+				var val3:Int = FlxColor.fromString('#' + value3);
+				switch (value2.toLowerCase().trim())
+				{
+					default:
+						char = boyfriend;
+					case 'gf' | 'girlfriend':
+						char = gf;
+					case 'dad':
+						char = dad;
+					case 'yuri':
+						char = extra2;
+					case 'sayori':
+						char = extra1;
+				}
+
+				if (Math.isNaN(val3))
+					val3 = 0xFFFFFFFF;
+				
+				switch (value1.toLowerCase())
+				{
+					case 'red':
+						char.color = FlxColor.RED;
+					case 'black':
+						char.color = FlxColor.BLACK;
+					case 'gray' | 'grey':
+						char.color = FlxColor.GRAY;
+					case 'white' | 'default':
+						char.color = FlxColor.WHITE;
+					default:
+						char.color = val3;
+				}
+
+			case 'Eye Popup':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				trace(value3);
+				var eye:FlxSprite = new FlxSprite(val1, val2);
+				eye.frames = Paths.getSparrowAtlas('MarkovEyes');
+				eye.animation.addByPrefix('idle', 'MarkovWindow', 24, false);
+				eye.animation.play('idle');
+				eye.antialiasing = SaveData.globalAntialiasing;
+				eye.scrollFactor.set();
+				eye.cameras = [camHUD];
+				add(eye);
+
+				// goku goes super saiyan
+				new FlxTimer().start(4.61, function(tmr:FlxTimer)
+				{
+					remove(eye);
+					eye.destroy();
+				});
+
+			case 'Summon Sayori or Yuri':
+				var char:Character = extra1;
+				var val2:Float = Std.parseFloat(value2);
+				switch (value1)
+				{
+					case 'sayori' | 'sayo' | 'Sayori':
+						char = extra1;
+					case 'yuri' | 'Yuri':
+						char = extra2;
+				}
+
+				if (Math.isNaN(val2) || val2 == 0)
+					val2 = 0.0001;
+
+				FlxTween.tween(char, {alpha: 1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+			case 'Cat Doodles Stuff':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				//value 1 handles alpha
+				//value 2 speed
+				//value 3 kills the cats
+
+				if (Math.isNaN(val1) || val1 == 0)
+					val1 = 0.00001;
+
+				if (Math.isNaN(val2) || val2 == 0)
+					val2 = 0.0001;
+
+				if (value3 == null || value3 == '')
+					FlxTween.tween(bakaOverlay, {alpha: val1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+
+				if (value3 != null && value3 != '')
+				{
+					bakaOverlay.animation.play('hueh');
+					new FlxTimer().start(4, function(tmr:FlxTimer)
+					{
+						bakaOverlay.alpha = 0;
+					});
+				}
+			case 'Strumline Visibility':
+				
+				var strum:FlxTypedGroup<StrumNote>;
+				var underlay:FlxSprite;
+				var val2:Float = Std.parseFloat(value2);
+				var val3:Float = Std.parseFloat(value3);
+
+				if (Math.isNaN(val2))
+					val2 = 1;
+				else if (val2 == 0)
+					val2 = 0.0001;
+
+				if (Math.isNaN(val3) || val3 <= 0)
+					val3 = 0.01;
+
+				// trace(value1 + ' & ' + value2 + ' & ' + value3);
+				var includeBlood:Bool = false;
+				switch (value1)
+				{
+					case 'dad' | 'opponent':
+					{
+						strum = opponentStrums;
+						// underlay = grpUnderlay.members[0];
+						if (bloodDrips) includeBlood = true;
+						if (SaveData.middleScroll)
+							val2 *= 0.35;
+					}
+					default:
+						strum = playerStrums;
+						// underlay = grpUnderlay.members[1];
+				}
+
+				// for (i in 0...4)
+				// {
+					
+				// 	FlxTween.cancelTweensOf(strum.members[i]);
+				// 	FlxTween.tween(strum.members[i], {alpha: val2}, val3, {ease: FlxEase.circOut});
+				// 	if (includeBlood)
+				// 	{
+				// 		FlxTween.cancelTweensOf(bloodStrums.members[i]);
+				// 		FlxTween.tween(bloodStrums.members[i], {alpha: val2}, val3, {ease: FlxEase.circOut});
+				// 	}
+				
+				// }
+
+				if (laneunderlay != null)
+				{
+					FlxTween.tween(laneunderlay, {alpha: val2 * SaveData.laneTransparency}, val3, {ease: FlxEase.circOut});
+				}
+
+			case 'Play SFX':
+				
+				var val2:Float = Std.parseFloat(value2);
+
+				if (Math.isNaN(val2))
+					val2 = 1;
+
+				FlxG.sound.play(Paths.sound(value1), val2);
+			case 'Markov note spawns blood':
+				switch (value1.toLowerCase().trim())
+				{
+					case 'true':
+						bloodDrips = true;
+					default:
+						bloodDrips = false;
+				}
+			case 'Spawn Red Eyes':
+				if (funnyEyes != null)
+				{
+					switch (value1.toLowerCase().trim())
+					{
+						default: // Spawn the eyes here	
+							funnyEyes.alpha = 1;
+							FlxG.camera.flash(FlxColor.RED, 0.5);
+						case 'fadeout': // make em disappear here
+							var val2:Float = Std.parseFloat(value2);
+							if (Math.isNaN(val2))
+								val2 = 1;
+							FlxTween.tween(funnyEyes, {alpha: 0.001}, val2, {ease: FlxEase.circOut});
+					}
+				}
+			case 'Stab Border':
+				var val1:Float = Std.parseFloat(value1);
+				if (Math.isNaN(val1))
+					val1 = 0.5;
+				FlxTween.cancelTweensOf(screenPulse);
+				screenPulse.alpha = 1;
+				FlxTween.tween(screenPulse, {alpha: 0.001}, val1, {ease: FlxEase.circOut});
+			case 'Tween in the holy light':
+				var val1:Float = Std.parseFloat(value1);
+				var val2:Float = Std.parseFloat(value2);
+				if (Math.isNaN(val1))
+					val1 = 1;
+				if (Math.isNaN(val2))
+					val1 = 0.1;
+
+				FlxTween.cancelTweensOf(holylight);
+				FlxTween.tween(holylight, {alpha: val1}, val2, {ease: FlxEase.linear});
+		}
+
+
+}
+function beventarray(learray:Array<Dynamic> = null):Void {
+	if(learray == null || learray == []) return;
+	for(i in learray){
+		bevent(i[0], i[1], i[2], i[3] == null ? "" : i[3]);
+	}
+}
+function stepHitBad(curStep:Int = 0):Void {
+	switch(curSong.toLowerCase()){
+		case "markov":
+			switch(curStep){
+				case 1:
+					bevent("Change Stagnant Stage", "closet");
+					bevent("Character Visibility", "bf", "0", "0");
+					bevent("Character Visibility", "gf", "0", "0");
+					bevent("Character Visibility", "dad", "0", "0");
+
+					bevent("remove darkScreen", "6.5");
+					bevent("Add/Remove Vignette", "0.6", "0");
+					bevent("Strumline Visibility", "dad", "0", "");
+					bevent("Strumline Visibility", "bf", "0", "");
+					bevent("UI visibility", "false");
+				case 56:
+					bevent("Play Animation", "appear", "dad");
+				case 57:
+					bevent("Character Visibility", "dad", "1", "1");
+				case 128:
+					bevent("Strumline Visibility", "dad", "0.5", "3");
+				case 192:
+					bevent("Strumline Visibility", "bf", "0.5", "2");
+				case 391:
+					bevent("Play Animation", "leaves", "dad");
+				case 406:
+					bevent("Strumline Visibility", "dad", "0", "3");
+					bevent("Strumline Visibility", "bf", "0", "3");
+					bevent("Screen in Darkness", "9", "5", "");
+					bevent("Change Camera Zoom", "1.15", "4", "");
+				case 433:
+					bevent("Change Character", "dad", "yuri-closeup", "");
+				case 434:
+					bevent("Change Scroll Speed", "1.35", "0.5");
+					bevent("Glitch Effect", "0.4", "");
+					bevent("Character Visibility", "dad", "1", "0");
+					bevent("Screen in Darkness", "0", "0", "");
+					bevent("Screen Shake", "0.3, 0.024", "0.3, 0.01", "");
+					bevent("Play Animation", "singDOWN-alt", "dad");
+				case 447:
+					bevent("Change Camera Zoom", "1.2", "0.1");
+				case 448:
+					beventarray(
+						[
+							["Character Visibility", "gf", "1", "0"],
+							["Character Visibility", "bf", "1", "0"],
+							["Change Character", "dad", "yuri-crazy"],
+							["Glitch Effect", "0.2", ""],
+							["Add/Remove Vignette", "0.2", "0"],
+							["Change Stagnant Stage", "evil", "", ""],
+							["Play Animation", "necksnap", "gf", ""],
+							["Strumline Visibility", "dad", "1", "0"],
+							["Strumline Visibility", "bf", "1", "0"],
+							["UI visibilty", "true", "", ""],
+							["Change Camera Zoom", "1.3", "0", ""],
+							["Toggle Note Camera Movement", "true", "7", ""]
+						]
+					);
+				case 704:
+					beventarray(
+						[
+							["Eye Popup", "100", "520", null],
+							["Change Camera Zoom", "1.5", "1", ""]
+						]
+					);
+				case 768:
+					beventarray(
+						[["Eye Popup", "710", "415", null]]
+					);
+				case 832:
+					beventarray(
+						[["Change Camera Zoom", "1.3", "1", ""]]
+					);
+				case 864:
+					beventarray([["Eye Popup", "550", "480", null]]);
+				case 880:
+					beventarray([["Eye Popup", "750", "530", null]]);
+				case 896:
+					beventarray([["Change Camera Zoom", "1.7", "1", ""]]);
+				case 960:
+					beventarray([["Screen in Darkness", "1", "1.4"]]);
+
+				case 980:
+					beventarray([["Change Character", "dad", "yuri-closeup"]]);
+				case 989:
+					beventarray([
+						["Change Stagnant Stage", "closet", ""],
+						["Add/Remove Vignette", "0.5", "0"],
+						["Character Visibility", "bf", "0", "0"],
+						["Character Visibility", "gf", "0", "0"],
+						["Change Camera Zoom", "1", "0.2", ""]
+                	]);
+				case 992:
+					beventarray([["Screen in Darkness", "0", "0"]]);
+				case 1248:
+					beventarray([["Change Camera Zoom", "1.1", "0.3"]]);
+				case 1328:
+					beventarray([["Eye Popup", "620", "200", ""]]);
+				case 1504:
+					beventarray(                [
+						["Screen in Darkness", "1", "0"],
+						["Change Character", "dad", "yuri-crazy"],
+						["Character Visibility", "bf", "1", "0"],
+						["Change Stagnant Stage", "evil", "", ""],
+						["Change Character", "gf", "gf-markov", ""],
+						["Change Camera Zoom", "1.3", "0.3", ""]
+                	]);
+				case 1511:
+					beventarray([["Screen in Darkness", "0.8", "0.8", ""]]);
+				case 1632:
+					beventarray(                [
+						["Change Camera Zoom", "1.1", "0.3", ""],
+						["Character Visibility", "gf", "1", "0"],
+						["Add Camera Zoom", "0.015", "0.03", ""],
+						["Glitch Effect", "0.3", "", ""],
+						["Spawn Red Eyes", "", "", ""]
+					]);
+				case 1648, 1664, 1680, 1696, 1712, 1728, 1744:
+					beventarray([["Add Camera Zoom", "0.015", "0.03", ""]]);
+				case 1760:
+					beventarray([["Change Camera Zoom", "1.3", "0.4", ""],
+                    ["Screen in Darkness", "0", "0.6", ""],
+                    ["Add/Remove Vignette", "0.6", "1", ""],
+                    ["Spawn Red Eyes", "fadeout", "1", ""]]);
+				case 2016:
+					beventarray([
+                    	["Eye Popup", "840", "430", ""],
+                    	["Change Camera Zoom", "1.4", "0.6", ""]
+                	]);
+				case 2048:
+					beventarray([
+                    	["Eye Popup", "100", "220", ""],
+                    	["Change Camera Zoom", "1.55", "0.6", ""]
+                	]);
+				case 2080:
+					beventarray([["Eye Popup", "400", "240", ""]]);
+				case 2112:
+					beventarray(
+						[
+							["Eye Popup", "760", "560", ""],
+							["Eye Popup", "120", "120", ""],
+							["Change Camera Zoom", "1.3", "0.6", ""]
+						]
+					);
+				case 2144:
+					beventarray([["Change Camera Zoom", "1.5", "0.4", ""]]);
+				case 2267:
+					beventarray(
+						[
+							["Change Camera Zoom", "1", "0", ""],
+							["Glitch Effect", "0.2", "", ""],
+							["Change Character", "dad", "yuri-closeup", ""],
+							["Change Stagnant Stage", "closet", "", ""],
+							["Add/Remove Vignette", "0.7", "0", ""],
+							["Character Visibility", "bf", "0", ""],
+							["Character Visibility", "gf", "0", ""]
+					]);
+				case 2272, 2278, 2284, 2290, 2296, 2302, 2308, 2314, 2320, 2324, 2328, 2332, 2336, 2342, 2348, 2354, 2360, 2366, 2372, 2378, 2384, 2388, 2392, 2396, 2400, 2406, 2412, 2418, 2424, 2430, 2436, 2442, 2448, 2452, 2456, 2460, 2464, 2470, 2476, 2482, 2488, 2494, 2500, 2506, 2512, 2516, 2520, 2524:
+					bevent("Add Camera Zoom", "0.015", "0.03");
+				case 2528:
+					bevent("Add Camera Zoom", "0.018", "0.03");
+				case 2719:
+					beventarray(                [
+                    	["Glitch Effect", "0.2", "", ""],
+                    	["Markov note spawns blood", "true", "", ""]
+                	]);
+				case 2720:
+					beventarray([
+                    	["Change Character", "dad", "yuri-gore", ""],
+                    	["Stab Border", "", "", ""],
+                    	["Add Camera Zoom", "0.015", "0.03", ""]
+               	 	]);
+				case 2724:
+					beventarray([["Change Character", "dad", "yuri-closeup", ""]]);
+				case 2735:
+					beventarray([["Glitch Effect", "0.2", "", ""]]);
+				case 2736:
+					beventarray([
+						["Change Character", "dad", "yuri-gore", ""],
+						["Stab Border", "", "", ""],
+						["Add Camera Zoom", "0.015", "0.03", ""]
+					]);
+				case 2740:
+					beventarray(["Change Character", "dad", "yuri-closeup", ""]);
+				case 2751:
+					beventarray([["Glitch Effect", "0.2", "", ""]]);
+				case 2752:
+					beventarray([
+						["Change Character", "dad", "yuri-gore", ""],
+						["Stab Border", "", "", ""],
+						["Add Camera Zoom", "0.015", "0.03", ""]
+					]);
+				case 2756:
+					beventarray(["Change Character", "dad", "yuri-closeup", ""]);
+				case 2767:
+					beventarray([["Glitch Effect", "0.2", "", ""]]);
+				case 2768:
+					beventarray(                [
+						["Change Character", "dad", "yuri-gore", ""],
+						["Add Camera Zoom", "0.015", "0.03", ""]
+					]);
+				case 2772:
+					beventarray(["Change Character", "dad", "yuri-closeup", ""]);
+				case 2784:
+					beventarray(                [
+						["Add Camera Zoom", "0.015", "0.03", ""]
+					]);
+				case 2791:
+					beventarray([["Glitch Effect", "0.2", "", ""]]);
+				case 2792:
+					beventarray([
+						["Change Character", "dad", "yuri-gore", ""],
+						["Stab Border", "", "", ""],
+						["Add Camera Zoom", "0.015", "0.03", ""]
+					]);
+				case 2796:
+					beventarray(["Change Character", "dad", "yuri-closeup", ""]);
+				case 2800, 2808:
+					beventarray(                [
+						["Add Camera Zoom", "0.015", "0.03", ""]
+					]);
+				case 2811:
+					trace(2811);
+					beventarray([["Glitch Effect", "0.2", "", ""]]);
+				case 2812:
+					trace(2812);
+					beventarray([["Change Character", "dad", "yuri-gore", ""]]);
+				case 2816:
+					trace(2816);
+					beventarray(
+						[
+							["Screen in Darkness", "1", "0", ""],
+							["Strumline Visibility", "bf", "0", ""],
+							["Strumline Visibility", "dad", "0", ""],
+							["UI visibilty", "false", "", ""],
+							["Markov note spawns blood", "false", "", ""],
+							["Toggle Note Camera Movement", "false", "", ""]
+						]
+					);
+				case 2819:
+					trace(2819);
+					beventarray([
+						["Change Camera Zoom", "1.2", "", ""],
+                    	["Add/Remove Vignette", "0", "0", ""]]
+					);
+				case 2825:
+					trace(2825);
+					beventarray(
+						[["Strumline Visibility", "bf", "1", "0.5"]]
+					);
+				case 2831:
+					trace(2831);
+					beventarray([["Add Camera Zoom", "0.018", "0.03", ""]]);
+				case 2832:
+					trace(2832);
+					beventarray([
+						["Change Stagnant Stage", "markovpoem", "", ""],
+						["Change Character", "dad", "yuri-gore", ""],
+						["Screen in Darkness", "0", "0", ""]
+                	]);
+				case 2864:
+					trace(2864);
+					beventarray([["Play Animation", "ded", "dad", ""]]);
+				case 2880:
+					trace(2880);
+					beventarray([
+						["Screen in Darkness", "1", "0", ""],
+						["Strumline Visibility", "bf", "0", "0"],
+						["Play SFX", "fall", "", ""],
+						["Stab Border", "0.001", "", ""]
+					]);
+				
+			}
+	}
+}
+function beatHitBad(curBeat:Int = 0):Void {
+
+}
+	function updateBad(elapsed:Float = 0):Void {
+
+	}
 }

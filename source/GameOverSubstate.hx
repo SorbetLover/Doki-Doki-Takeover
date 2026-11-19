@@ -23,15 +23,27 @@ class GameOverSubstate extends MusicBeatSubstate
 	var daBf:String = '';
 	var stageSuffix = '';
 	var isBig:Bool = false;
-
 	public static var crashdeath:Bool = false;
 
+	var musicSuffix:String = "";
+	public static var markovGameover:Bool = false;
+
+	public static var deathSoundName:String = 'fnf_loss_sfx';
+	public static var characterName:String = 'bf';
+	public static var camZoom:Float = 1.0;
+	
 	public function new(x:Float, y:Float, goType:Int)
 	{		
 		FlxG.camera.bgColor = FlxColor.BLACK;
 
 		libbie = PlayState.SONG.song.toLowerCase() == 'libitina';
-
+		if (markovGameover) 
+		{
+			musicSuffix = "-bad";
+			deathSoundName = 'YuriWatchesYouDie';
+			characterName = 'gameover-markov';
+			camZoom = 0.9;
+		}	
 		if (!PlayState.isStoryMode && !libbie && PlayState.SONG.song.toLowerCase() != 'catfight')
 			mirrormode = SaveData.mirrorMode;
 
@@ -72,20 +84,22 @@ class GameOverSubstate extends MusicBeatSubstate
 		super();
 
 		Conductor.songPosition = 0;
-
+		if(characterName != "bf"){
+			daBf = characterName;
+		}
 		if (!libbie)
 		{
 			bf = new Character(x, y, daBf, !isBig);
 			trace(bf == null ? "bf if hella dumb" : "bf has a big forehead");
 			add(bf);
 
-			var gameoverSound:String = (mirrormode ? bf.winsound : bf.deathsound);
+			var gameoverSound:String = (mirrormode ? bf.winsound : bf.deathsound) + musicSuffix;
 
 			camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
 			add(camFollow);
 
-			if (!crashdeath && Paths.fileExists('sounds/gameover/' + gameoverSound + '.ogg', SOUND, 'shared'))
-				FlxG.sound.play(Paths.sound('gameover/' + gameoverSound));
+			if (!crashdeath && Paths.fileExists('sounds/gameover/' + gameoverSound + musicSuffix + '.ogg', SOUND, 'shared'))
+				FlxG.sound.play(Paths.sound('gameover/' + gameoverSound + musicSuffix));
 		}
 		else
 		{
@@ -128,7 +142,7 @@ class GameOverSubstate extends MusicBeatSubstate
 						new FlxTimer().start(1, function(timer:FlxTimer)
 						{
 							startSong = true;
-							FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));
+							FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix + musicSuffix));
 						});
 					}		
 				}
