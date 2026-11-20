@@ -3771,6 +3771,7 @@ class PlayState extends MusicBeatState
 		#if FEATURE_DISCORD
 		updateDiscordPresence();
 		#end
+		onSongStart();
 	}
 
 	private function generateSong(dataPath:String):Void
@@ -9111,7 +9112,21 @@ public function reloadHealthBarColors()
 
 	healthBar.updateBar();
 }
+var defaultstrumposx:Array<Float> = [];
+var defaultstrumposy:Array<Float> = [];
 
+function onSongStart():Void {
+	if(["down-bad", "metamorphosis"].contains(curSong.toLowerCase())){
+		for(i in opponentStrums){
+			defaultstrumposx.push(i.x);
+			defaultstrumposy.push(i.y);
+		}
+		for(i in playerStrums){
+			defaultstrumposx.push(i.x);
+			defaultstrumposy.push(i.y);
+		}
+	}
+}
 var whrilmoving:Bool = false; 
 /////// additions
 function otherUpdate(elapsed:Float):Void{
@@ -9232,15 +9247,44 @@ function metStepHit(curStep):Void {
 		}
 	}
 }
+var curBeatFloat:Float = 0;
 function metaupdate(elapsed):Void{
 	if(curSong.toLowerCase() == "metamorphosis"){
 		if(curStep <= 127 || curStep >= 896){
 			moveCamera("dad");
 		}
 	} else if(curSong.toLowerCase() == "down-bad"){
+		if(!songStarted) return;
+		curBeatFloat = (Conductor.songPosition*0.001) * (Conductor.bpm*0.1);
 		if(curStep <= 255 || curStep >= 1792){
 			moveCamera("dad");
 		}
+		if((curStep >= 256 && curStep < 512) || (curStep >= 768 && curStep < 1024) || (curStep >= 1280 && curStep < 1792)){
+			var ego:Int = 0;
+			for(i in opponentStrums){
+				i.x = defaultstrumposx[ego] + 5 * Math.sin(curBeatFloat+ego*50);
+				i.y = defaultstrumposy[ego] + 10 * Math.cos(curBeatFloat+ego*0.25);
+				ego++;
+			}
+		} else 
+		if((curStep >= 512 && curStep < 703) || (curStep >= 1024 && curStep < 1248)){
+			var ego:Int = 0;
+			for(i in opponentStrums){
+				i.x = defaultstrumposx[ego] + 2 * Math.sin(curBeatFloat+ego*50);
+				i.y = defaultstrumposy[ego] + 2 * Math.cos(curBeatFloat+ego*0.25);
+				ego++;
+			}
+		} else {
+			var ego:Int = 0;
+			for(i in opponentStrums){
+				i.x = defaultstrumposx[ego];
+				i.y = defaultstrumposy[ego];
+				ego++;
+			}
+		}
+		
+		
+		
 	}
 }
 var daSong:String = "";
