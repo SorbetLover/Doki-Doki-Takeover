@@ -159,42 +159,42 @@ class Paths
 		return 'assets/$file';
 	}
 
-	inline static public function file(file:String, type:AssetType = TEXT, ?library:Dynamic)
+	inline static public function file(file:String, type:AssetType = TEXT, ?library:String)
 	{
 		return getPath(file, type, library);
 	}
 
-	inline static public function txt(key:String, ?library:Dynamic)
+	inline static public function txt(key:String, ?library:String)
 	{
 		return getPath('$key.txt', TEXT, library);
 	}
 
-	inline static public function xml(key:String, ?library:Dynamic)
+	inline static public function xml(key:String, ?library:String)
 	{
 		return getPath('data/$key.xml', TEXT, library);
 	}
 
-	inline static public function json(key:String, ?library:Dynamic)
+	inline static public function json(key:String, ?library:String)
 	{
 		return getPath('data/$key.json', TEXT, library);
 	}
 
-	inline static public function shaderVertex(key:String, ?library:Dynamic)
+	inline static public function shaderVertex(key:String, ?library:String)
 	{
 		return getPath('shaders/$key.vs', TEXT, library);
 	}
 
-	inline static public function shaderFragment(key:String, ?library:Dynamic)
+	inline static public function shaderFragment(key:String, ?library:String)
 	{
 		return getPath('shaders/$key.fs', TEXT, library);
 	}
 
-	inline static public function video(key:String, ?library:Dynamic)
+	inline static public function video(key:String, ?library:String)
 	{
 		return getPath('videos/$key.mp4', BINARY, library);
 	}
 
-	static public function sound(key:String, ?library:Dynamic):Dynamic
+	static public function sound(key:String, ?library:String):Dynamic
 	{
 		#if html5
 		return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
@@ -204,12 +204,12 @@ class Paths
 		#end
 	}
 
-	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:Dynamic)
+	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
 	{
 		return sound(key + Random.randUInt(min, max), library);
 	}
 
-	inline static public function music(key:String, ?library:Dynamic):Dynamic
+	inline static public function music(key:String, ?library:String):Dynamic
 	{
 		#if html5
 		return getPath('music/$key.$SOUND_EXT', MUSIC, library);
@@ -241,7 +241,7 @@ class Paths
 		#end
 	}
 
-	inline static public function image(key:String, ?library:Dynamic, ?locale:Bool):FlxGraphic
+	inline static public function image(key:String, ?library:String, ?locale:Bool):FlxGraphic
 	{
 		var returnAsset:FlxGraphic = returnGraphic(key, library, locale);
 		return returnAsset;
@@ -252,7 +252,7 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?library:Dynamic)
+	inline static public function fileExists(key:String, type:AssetType, ?library:String)
 	{
 		if (OpenFlAssets.exists(Paths.getPath(key, type, library)))
 			return true;
@@ -260,7 +260,7 @@ class Paths
 		return false;
 	}
 
-	inline static public function getSparrowAtlas(key:String, ?library:Dynamic, ?locale:Bool = false)
+	inline static public function getSparrowAtlas(key:String, ?library:String, ?locale:Bool)
 	{
 		var imageLoaded:FlxGraphic = returnGraphic(key, library, locale);
 
@@ -281,7 +281,7 @@ class Paths
 		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library, locale)), file('$folder/$key.xml', library));
 	}
 
-	inline static public function getPackerAtlas(key:String, ?library:Dynamic)
+	inline static public function getPackerAtlas(key:String, ?library:String)
 	{
 		var imageLoaded:FlxGraphic = returnGraphic(key, library);
 
@@ -292,7 +292,7 @@ class Paths
 	public static var currentTrackedTextures:Map<String, Texture> = [];
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 
-	public static function returnGraphic(key:String, ?library:Dynamic, ?locale:Bool)
+	public static function returnGraphic(key:String, ?library:String, ?locale:Bool)
 	{
 		var folder:String = 'images';
 
@@ -360,7 +360,7 @@ class Paths
 
 	public static var currentTrackedSounds:Map<String, Sound> = [];
 
-	public static function returnSound(path:String, key:String, ?library:Dynamic)
+	public static function returnSound(path:String, key:String, ?library:String)
 	{
 		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);

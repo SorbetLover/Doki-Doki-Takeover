@@ -599,7 +599,6 @@ class PlayState extends MusicBeatState
 		updateDiscordPresence();
 		#end
 
-		preCreate();
 		camGame = new FlxCamera();
 		camGame2 = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -760,6 +759,7 @@ class PlayState extends MusicBeatState
 		if (centerCameraOffset == null)
 			centerCameraOffset = [0, 0];
 
+		preCreate();
 		// initializing the bg dokis here
 		if (curStage.startsWith('doki') && !SaveData.lowEnd)
 		{
@@ -787,7 +787,6 @@ class PlayState extends MusicBeatState
 		}
 
 		preloadGroup = new FlxSpriteGroup(100, 100);
-		stageinits(SONG.song, curStage);
 		
 		switch (curStage)
 		{
@@ -1862,6 +1861,7 @@ class PlayState extends MusicBeatState
 
 				}
 		}
+		stageinits(SONG.song, curStage);
 
 		//Gonna hide some of this stuff for performance reasons.
 		if (curStage == 'school' || curStage == 'wilted' || curStage == 'schoolEvilEX')

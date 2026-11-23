@@ -7,7 +7,7 @@ class BGSprite extends FlxSprite
 {
 	private var idleAnim:String;
 
-	public function new(image:String, library:String, ?locale:Bool = false, x:Float = 0, y:Float = 0, ?scrollX:Float = 1, ?scrollY:Float = 1, ?anim:Array<String> = null, ?loop:Bool = false, ?framerate:Int = 24)
+	public function new(image:String, library:String, ?locale:Bool, x:Float = 0, y:Float = 0, ?scrollX:Float = 1, ?scrollY:Float = 1, ?anim:Array<String> = null, ?loop:Bool = false, ?framerate:Int = 24)
 	{
 		trace("========= BGSPRITE " + image);
 		trace(image);
